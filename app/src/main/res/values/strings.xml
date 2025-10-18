@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Media Diary</string>
+    <string name="search_label">Поиск сериалов и фильмов</string>
+    <string name="movie">Фильм</string>
+    <string name="series">Сериал</string>
+    <string name="rating">Рейтинг: </string>
+</resources>
