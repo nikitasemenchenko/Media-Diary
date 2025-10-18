@@ -1,7 +1,6 @@
 package com.example.mediadiary.data.di
 
 import com.example.mediadiary.data.remote.KinopoiskApi
-import com.example.mediadiary.data.remote.model.SearchResult
 import com.example.mediadiary.data.repository.MediaRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
