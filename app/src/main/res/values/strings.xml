@@ -3,5 +3,12 @@
     <string name="search_label">Поиск сериалов и фильмов</string>
     <string name="movie">Фильм</string>
     <string name="series">Сериал</string>
+    <string name="anime">Аниме</string>
+    <string name="cartoon">Мультфильм</string>
+    <string name="animated_series">Мультсериал</string>
     <string name="rating">Рейтинг: </string>
+    <string name="duration">Длительность: </string>
+    <string name="empty_collection">Ваша коллекция пуста.</string>
+    <string name="already_in_collection">Уже в коллекции</string>
+    <string name="successfully_added">Добавлено в "Хочу посмотреть"</string>
 </resources>

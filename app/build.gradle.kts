@@ -75,5 +75,6 @@ dependencies {
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
     implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    implementation("androidx.navigation:navigation-compose:2.8.9")
+
 }

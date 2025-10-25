@@ -1,28 +1,18 @@
 package com.example.mediadiary.ui.search
 
-import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.mediadiary.MediaDiaryApplication
 import com.example.mediadiary.data.remote.model.SearchResult
 import com.example.mediadiary.data.repository.MediaRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.Dns
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.net.InetAddress
 
 class SearchViewModel(private val repository: MediaRepository): ViewModel() {
     private val _searchResults = MutableStateFlow<List<SearchResult>>(emptyList())
@@ -35,6 +25,13 @@ class SearchViewModel(private val repository: MediaRepository): ViewModel() {
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     private var searchJob: Job? = null
+
+    private val _events = MutableSharedFlow<String>()
+    val events = _events.asSharedFlow()
+    val already_in_collection = "Уже в коллекции"
+    val successfully_added = "Добавлено в \"Хочу посмотреть\""
+    val error = "Ошибка"
+
 
     fun loadTrendings(){
         _isLoading.value = true
@@ -85,18 +82,27 @@ class SearchViewModel(private val repository: MediaRepository): ViewModel() {
         }
         else{
             searchJob = viewModelScope.launch {
-                delay(800)
+                delay(1000)
                 makeSearch(query)
             }
         }
     }
 
-    companion object{
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application =(this[APPLICATION_KEY] as MediaDiaryApplication)
-                val repository = application.container.mediaRepository
-                SearchViewModel(repository = repository )
+    fun addItemToWishlist(item: SearchResult){
+        viewModelScope.launch {
+            try {
+                val fullItem =repository.getItemById(item.id)
+                val added = repository.addToWishList(fullItem)
+                if(added == true){
+                    _events.emit(successfully_added)
+                }
+                else{
+                    _events.emit(already_in_collection)
+                }
+            }
+            catch (e: Exception){
+                _events.emit(error)
+                Log.d("addingToWishlist", e.message ?: "произошла ошибка")
             }
         }
     }
