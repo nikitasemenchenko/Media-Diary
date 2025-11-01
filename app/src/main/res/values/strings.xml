@@ -14,5 +14,11 @@
     <string name="back">Назад</string>
     <string name="description">Описание</string>
     <string name="no_description">Нет описания</string>
+    <string name="user_rating">Ваша оценка:</string>
+    <string name="select_date">Дата просмотра:</string>
+    <string name="select_date_label">Дата просмотра</string>
+    <string name="note">Заметка:</string>
+    <string name="note_label">Ваши впечатления</string>
+
 
 </resources>

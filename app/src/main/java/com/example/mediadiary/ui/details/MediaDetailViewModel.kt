@@ -29,11 +29,15 @@ class MediaDetailViewModel(private val repository: MediaRepository): ViewModel()
         _uiState.value = _uiState.value?.copy(userNote = note)
     }
 
+    fun updateDate(date: Long?){
+        _uiState.value = _uiState.value?.copy(watchDate = date)
+    }
+
     fun createOrUpdateMediaItem(){
         val item = _uiState.value ?: return
         viewModelScope.launch {
             repository.createOrUpdateItem(item)
+            }
         }
-    }
 
     }

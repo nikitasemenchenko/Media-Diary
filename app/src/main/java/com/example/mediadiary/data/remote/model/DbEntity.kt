@@ -18,10 +18,10 @@ data class MediaItem(
     val actors: String?,
     val countries: String?,
     val length: String?,
-    val addedAt: Long = System.currentTimeMillis(),
     val watchStatus: MovieStatus? = null,
     val userRating: Int? = null,
     val watchDate: Long? = null,
+    val addedAt: Long? = System.currentTimeMillis(),
     val userNote: String? = null
 ){
     fun isMovie(): Boolean = type == "Фильм"

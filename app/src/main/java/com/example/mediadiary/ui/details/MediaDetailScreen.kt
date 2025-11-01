@@ -1,5 +1,6 @@
 package com.example.mediadiary.ui.details
 
+import WatchDateSelector
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -43,6 +45,9 @@ fun MediaDetailScreen(
     vm: MediaDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
     item: MediaItem,
     onStatusClick: (MovieStatus) -> Unit,
+    onRatingChange: (Int) -> Unit,
+    onDateChange: (Long?) -> Unit,
+    onNoteChange: (String?) -> Unit,
     onBack: () -> Unit
 ){
     val scrollState = rememberScrollState()
@@ -140,7 +145,42 @@ fun MediaDetailScreen(
                 fontWeight = FontWeight.Bold
             )
             StatusSelector(currentStatus =  item.watchStatus, onStatusClick)
+            if(item.watchStatus == MovieStatus.WATCHED){
+                Spacer(modifier = Modifier.padding(8.dp))
+                Text(
+                    text = stringResource(R.string.user_rating),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                StarRatingSelector(
+                    rating = item.userRating,
+                    onRatingChanged = onRatingChange)
 
+                Text(
+                    text = stringResource(R.string.select_date),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                WatchDateSelector(
+                    watchDate = item.watchDate ?: item.addedAt,
+                    onDateChanged = onDateChange)
+
+                Text(
+                    text = stringResource(R.string.note),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                OutlinedTextField(
+                    value = item.userNote ?: "",
+                    onValueChange = { onNoteChange(
+                        it.ifEmpty { null }
+                    ) },
+                    label ={Text(stringResource(R.string.note_label))},
+                    minLines = 2,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+            }
 
             Spacer(modifier = Modifier.padding(16.dp))
         }

@@ -93,7 +93,6 @@ fun CollectionItemCard(item: MediaItem,
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = { onCollectionItemClick(item.id) })
-            .padding(horizontal = 16.dp)
     ) {
         Row(
             modifier = Modifier

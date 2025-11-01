@@ -18,7 +18,9 @@ private val kpApi: KinopoiskApi,
     private var trendingCache: List<SearchResult>? = null
 
     suspend fun search(query: String): KinopoiskSearchResponse {
-        return kpApi.multiSearch(query = query)
+        val response = kpApi.multiSearch(query = query)
+        val filtered = response.docs.filter { !it.poster?.url.isNullOrBlank() }
+        return response.copy(docs = filtered)
     }
 
     suspend fun updateMediaItem(newItem: MediaItem){
@@ -36,7 +38,9 @@ private val kpApi: KinopoiskApi,
         val animatesSeriesResponse = kpApi.getTrendingAnimatedSeries()
 
         val combined = (moviesResponse.docs + seriesResponse.docs+ animeResponse.docs
-                + cartoonsResponse.docs + animatesSeriesResponse.docs).shuffled()
+                + cartoonsResponse.docs + animatesSeriesResponse.docs)
+            .filter { !it.poster?.url.isNullOrBlank() }
+            .shuffled()
         trendingCache = combined
 
         return combined

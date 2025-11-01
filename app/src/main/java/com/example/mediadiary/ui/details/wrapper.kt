@@ -20,6 +20,19 @@ fun MediaDetailsWrapper(vm: MediaDetailViewModel = viewModel(factory = AppViewMo
             onStatusClick = {newStatus ->
                 vm.updateStatus(newStatus)
                 vm.createOrUpdateMediaItem()
-            })
+            },
+            onRatingChange = {newRating ->
+                vm.updateRating(newRating)
+                vm.createOrUpdateMediaItem()
+            },
+            onDateChange = {date->
+                vm.updateDate(date)
+                vm.createOrUpdateMediaItem()
+            },
+            onNoteChange = {note->
+                vm.updateNote(note)
+                vm.createOrUpdateMediaItem()
+            }
+        )
     }
 }
