@@ -134,7 +134,6 @@ fun MediaItemCard(item: SearchResult,
                 Text(
                     text = item.getItemType(),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary
                 )
                 Text(
                     text = item.getItemYear(),
