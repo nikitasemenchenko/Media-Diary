@@ -6,8 +6,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.example.mediadiary.data.remote.model.MovieStatusTypeConverter
 
-@Database(entities = [MediaItem::class], version = 1, exportSchema = false)
+@Database(entities = [MediaItem::class], version = 3, exportSchema = false)
+@TypeConverters(MovieStatusTypeConverter::class)
 abstract class MediaDiaryDatabase: RoomDatabase() {
     abstract fun mediaDao(): MediaDao
 

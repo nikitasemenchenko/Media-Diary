@@ -19,6 +19,11 @@ private val kpApi: KinopoiskApi,
     suspend fun search(query: String): KinopoiskSearchResponse {
         return kpApi.multiSearch(query = query)
     }
+
+    suspend fun updateMediaItem(newItem: MediaItem){
+        mediaDao.update(newItem)
+    }
+
     suspend fun getTrendings(): List<SearchResult> {
         if (trendingCache != null) {
             return trendingCache!!
@@ -44,11 +49,37 @@ private val kpApi: KinopoiskApi,
         return withContext(Dispatchers.IO) {
             val check = mediaDao.findById(item.id)
             if (check == null) {
-                val newItem = MediaItem.fromDetailedSearchResult(item)
+                val newItem = MediaItem.onAddToWishList(item)
                 mediaDao.insert(newItem)
                 true
             } else {
                 false
+            }
+        }
+    }
+
+    suspend fun getOrCreateMediaItem(id: Int): MediaItem {
+        return withContext(Dispatchers.IO) {
+            val existing = mediaDao.findById(id)
+            if (existing != null) {
+                return@withContext existing
+            }
+
+            val details = kpApi.getById(id = id)
+            val newItem = MediaItem.fromDetailedSearchResult(details)
+            mediaDao.insert(newItem)
+            newItem
+        }
+    }
+
+    suspend fun createOrUpdateItem(item: MediaItem){
+        return withContext(Dispatchers.IO) {
+            val check =mediaDao.findById(item.id)
+            if(check == null){
+                mediaDao.insert(item)
+            }
+            else{
+                mediaDao.update(item)
             }
         }
     }

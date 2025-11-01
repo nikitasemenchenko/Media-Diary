@@ -34,12 +34,6 @@ data class SearchResult(
         }
         return res.joinToString(", ")
     }
-
-    fun isMovie(): Boolean = type == "movie"
-    fun isTvSeries(): Boolean = type == "tv-series"
-    fun isCartoon(): Boolean = type == "cartoon"
-    fun isAnime(): Boolean = type == "anime"
-    fun isAnimatedSeries(): Boolean = type == "animated-series"
     fun getItemType(): String {
         val whichType = ""
         return when(type) {
@@ -105,12 +99,6 @@ data class KinopoiskSearchDetailedResponse(
         for(x in countries) countriesList.add(x.name)
         return countriesList.joinToString(", ")
     }
-
-    fun isMovie(): Boolean = type == "movie"
-    fun isTvSeries(): Boolean = type == "tv-series"
-    fun isCartoon(): Boolean = type == "cartoon"
-    fun isAnime(): Boolean = type == "anime"
-    fun isAnimatedSeries(): Boolean = type == "animated-series"
     fun getItemType(): String {
         return when(type) {
             "movie" -> "Фильм"
@@ -138,7 +126,7 @@ data class KinopoiskSearchDetailedResponse(
     fun getActorsNames(): String {
         return persons
             ?.filter { it.enProfession == "actor" }
-            ?.take(8)?.joinToString(", ") { it.name ?: "Неизвестно" }
+            ?.take(6)?.joinToString(", ") { it.name ?: "Неизвестно" }
             ?: "Нет информации об актерах"
     }
 }

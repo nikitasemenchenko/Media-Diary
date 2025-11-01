@@ -8,7 +8,11 @@
     <string name="animated_series">Мультсериал</string>
     <string name="rating">Рейтинг: </string>
     <string name="duration">Длительность: </string>
-    <string name="empty_collection">Ваша коллекция пуста.</string>
+    <string name="empty_collection">Здесь ничего нет.</string>
     <string name="already_in_collection">Уже в коллекции</string>
     <string name="successfully_added">Добавлено в "Хочу посмотреть"</string>
+    <string name="back">Назад</string>
+    <string name="description">Описание</string>
+    <string name="no_description">Нет описания</string>
+
 </resources>

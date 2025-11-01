@@ -3,6 +3,7 @@ package com.example.mediadiary.ui.search
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mediadiary.data.remote.model.MediaItem
 import com.example.mediadiary.data.remote.model.SearchResult
 import com.example.mediadiary.data.repository.MediaRepository
 import kotlinx.coroutines.Job
@@ -93,7 +94,7 @@ class SearchViewModel(private val repository: MediaRepository): ViewModel() {
             try {
                 val fullItem =repository.getItemById(item.id)
                 val added = repository.addToWishList(fullItem)
-                if(added == true){
+                if(added){
                     _events.emit(successfully_added)
                 }
                 else{
@@ -103,6 +104,17 @@ class SearchViewModel(private val repository: MediaRepository): ViewModel() {
             catch (e: Exception){
                 _events.emit(error)
                 Log.d("addingToWishlist", e.message ?: "произошла ошибка")
+            }
+        }
+    }
+    fun getMediaItemById(id: Int, onSuccess: (MediaItem) -> Unit){
+        viewModelScope.launch {
+            try {
+                val item = repository.getOrCreateMediaItem(id)
+                onSuccess(item)
+            }
+            catch (e: Exception){
+                Log.d("getMediaItemById", "${e.message}")
             }
         }
     }

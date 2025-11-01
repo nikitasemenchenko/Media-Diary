@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mediadiary.MediaDiaryApplication
 import com.example.mediadiary.ui.collection.CollectionViewModel
+import com.example.mediadiary.ui.details.MediaDetailViewModel
 import com.example.mediadiary.ui.search.SearchViewModel
 
 object AppViewModelProvider {
@@ -17,6 +18,9 @@ object AppViewModelProvider {
         }
         initializer {
             CollectionViewModel(inventoryApplication().container.mediaRepository)
+        }
+        initializer {
+            MediaDetailViewModel(inventoryApplication().container.mediaRepository)
         }
     }
 }

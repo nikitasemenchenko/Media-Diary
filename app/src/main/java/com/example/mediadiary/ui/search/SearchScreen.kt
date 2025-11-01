@@ -2,6 +2,7 @@ package com.example.mediadiary.ui.search
 
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -48,8 +49,9 @@ object SearchDestination : NavigationDestination {
 @Composable
 fun SearchScreen(
     vm: SearchViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues()
+    modifier: Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
+    onItemClick: (Int) -> Unit
 ) {
     val searchResults by vm.searchResults.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
@@ -91,7 +93,9 @@ fun SearchScreen(
                 }
             } else {
                 items(searchResults) { item ->
-                    MediaItemCard(item = item, onAddToWishlist = vm::addItemToWishlist)
+                    MediaItemCard(item = item,
+                        onAddToWishlist = vm::addItemToWishlist,
+                        onItemClick = onItemClick)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
@@ -101,9 +105,11 @@ fun SearchScreen(
 
 @Composable
 fun MediaItemCard(item: SearchResult,
-                  onAddToWishlist: (SearchResult) -> Unit){
+                  onAddToWishlist: (SearchResult) -> Unit,
+                  onItemClick: (Int) -> Unit){
     Card(
         modifier = Modifier.fillMaxWidth()
+            .clickable(onClick = {onItemClick(item.id)})
     ) {
         Row(
             modifier = Modifier.padding(16.dp)
