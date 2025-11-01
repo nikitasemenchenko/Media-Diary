@@ -5,6 +5,7 @@ import com.example.mediadiary.data.remote.KinopoiskApi
 import com.example.mediadiary.data.remote.model.KinopoiskSearchDetailedResponse
 import com.example.mediadiary.data.remote.model.KinopoiskSearchResponse
 import com.example.mediadiary.data.remote.model.MediaItem
+import com.example.mediadiary.data.remote.model.MediaStats
 import com.example.mediadiary.data.remote.model.SearchResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -86,5 +87,14 @@ private val kpApi: KinopoiskApi,
 
     fun getCollection(): Flow<List<MediaItem>> = mediaDao.getAllItems()
 
+    suspend fun getMediaStats(): MediaStats{
+        return withContext(Dispatchers.IO) {
+            val total = mediaDao.getTotalCount()
+            val watched = mediaDao.getWatchedCount()
+            val watching = mediaDao.getWatchingCount()
+            val wantToWatch = mediaDao.getWantToWatchCount()
+            MediaStats(total, watched, watching, wantToWatch)
 
+        }
+    }
 }

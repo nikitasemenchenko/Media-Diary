@@ -2,6 +2,7 @@ package com.example.mediadiary.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mediadiary.ui.collection.CollectionDestination
 import com.example.mediadiary.ui.navigation.MediaDiaryNavHost
 import com.example.mediadiary.ui.search.SearchDestination
+import com.example.mediadiary.ui.statistics.StatisticsDestination
 
 
 data class NavItem(
@@ -33,10 +35,6 @@ data class NavItem(
 fun MediaDiaryApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val navItems = listOf(
-        NavItem(SearchDestination.route, "Поиск", Icons.Default.Search),
-        NavItem(CollectionDestination.route, "Коллекция", Icons.Default.Favorite)
-    )
     val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
@@ -54,10 +52,13 @@ fun MediaDiaryApp() {
 
 @Composable
 fun MediaDiaryBottomBar(navController: NavController, currentRoute: String?){
-    if(currentRoute !in listOf(SearchDestination.route, CollectionDestination.route)) return
+    if(currentRoute !in listOf(SearchDestination.route, CollectionDestination.route,
+            StatisticsDestination.route)) return
     val navItems = listOf(
         NavItem(SearchDestination.route, "Поиск", Icons.Default.Search),
-        NavItem(CollectionDestination.route, "Коллекция", Icons.Default.Favorite)
+        NavItem(CollectionDestination.route, "Коллекция", Icons.Default.Favorite),
+        NavItem(StatisticsDestination.route, "Статистика", Icons.Default.BarChart
+        )
     )
     NavigationBar {
         navItems.forEach { item ->

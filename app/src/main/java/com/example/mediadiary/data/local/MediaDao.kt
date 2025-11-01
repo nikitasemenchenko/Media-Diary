@@ -25,4 +25,17 @@ interface MediaDao {
 
     @Query("SELECT * from media_items ORDER BY addedAt DESC")
     fun getAllItems(): Flow<List<MediaItem>>
+
+    @Query("SELECT COUNT(*) FROM media_items")
+    suspend fun getTotalCount(): Int
+
+    @Query("SELECT COUNT(*) FROM media_items WHERE watchStatus = 'Просмотрено'")
+    suspend fun getWatchedCount(): Int
+
+    @Query("SELECT COUNT(*) FROM media_items WHERE watchStatus = 'Смотрю'")
+    suspend fun getWatchingCount(): Int
+
+    @Query("SELECT COUNT(*) FROM media_items WHERE watchStatus = 'Хочу посмотреть'")
+    suspend fun getWantToWatchCount(): Int
+
 }

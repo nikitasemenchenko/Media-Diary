@@ -15,6 +15,8 @@ import com.example.mediadiary.ui.details.MediaDetailDestination
 import com.example.mediadiary.ui.details.MediaDetailsWrapper
 import com.example.mediadiary.ui.search.SearchDestination
 import com.example.mediadiary.ui.search.SearchScreen
+import com.example.mediadiary.ui.statistics.StatisticsDestination
+import com.example.mediadiary.ui.statistics.StatisticsScreen
 
 @Composable
 fun MediaDiaryNavHost(
@@ -52,6 +54,9 @@ fun MediaDiaryNavHost(
             if(mediaItemId != 0){
                 MediaDetailsWrapper(mediaId = mediaItemId, onBack = {navController.popBackStack()})
             }
+        }
+        composable(route = StatisticsDestination.route) {
+            StatisticsScreen()
         }
     }
 }

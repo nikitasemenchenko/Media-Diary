@@ -8,22 +8,24 @@ import com.example.mediadiary.MediaDiaryApplication
 import com.example.mediadiary.ui.collection.CollectionViewModel
 import com.example.mediadiary.ui.details.MediaDetailViewModel
 import com.example.mediadiary.ui.search.SearchViewModel
+import com.example.mediadiary.ui.statistics.StatisticsViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            SearchViewModel(
-                inventoryApplication().container.mediaRepository
-            )
+            SearchViewModel(mediaDiaryApplication().container.mediaRepository)
         }
         initializer {
-            CollectionViewModel(inventoryApplication().container.mediaRepository)
+            CollectionViewModel(mediaDiaryApplication().container.mediaRepository)
         }
         initializer {
-            MediaDetailViewModel(inventoryApplication().container.mediaRepository)
+            MediaDetailViewModel(mediaDiaryApplication().container.mediaRepository)
+        }
+        initializer {
+            StatisticsViewModel(mediaDiaryApplication().container.mediaRepository)
         }
     }
 }
 
-fun CreationExtras.inventoryApplication(): MediaDiaryApplication =
+fun CreationExtras.mediaDiaryApplication(): MediaDiaryApplication =
     (this[AndroidViewModelFactory.APPLICATION_KEY] as MediaDiaryApplication)

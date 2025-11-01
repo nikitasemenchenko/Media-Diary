@@ -72,9 +72,10 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("io.coil-kt:coil-compose:2.4.0")
-    implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
-    implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
-    ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
+    implementation("androidx.room:room-runtime:2.6.0")
+    implementation("androidx.room:room-ktx:2.6.0")
+    ksp("androidx.room:room-compiler:2.6.0")
     implementation("androidx.navigation:navigation-compose:2.8.9")
+    implementation("androidx.compose.material:material-icons-extended:1.7.7")
 
 }
