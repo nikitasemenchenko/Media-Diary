@@ -9,7 +9,7 @@ class MovieStatusTypeConverter {
     }
 
     @TypeConverter
-    fun fromMovieStatus(status: MovieStatus?): String?{
+    fun fromMovieStatus(status: MovieStatus?): String? {
         return status?.statusName
     }
 }

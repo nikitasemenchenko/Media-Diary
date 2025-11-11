@@ -1,6 +1,7 @@
 package com.example.mediadiary.data.di
 
 import android.content.Context
+import com.example.mediadiary.data.AppConstants.BASE_URL
 import com.example.mediadiary.data.local.MediaDiaryDatabase
 import com.example.mediadiary.data.remote.KinopoiskApi
 import com.example.mediadiary.data.repository.MediaRepository
@@ -8,16 +9,16 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
-import kotlin.jvm.java
 
 class AppContainer(private val context: Context) {
     val mediaRepository: MediaRepository by lazy {
-        MediaRepository(retrofitService,
-            MediaDiaryDatabase.getDatabase(context).mediaDao())
+        MediaRepository(
+            retrofitService,
+            MediaDiaryDatabase.getDatabase(context).mediaDao()
+        )
 
     }
-    private val BASE_URL = "https://api.kinopoisk.dev/v1.4/"
-    private val json = Json {ignoreUnknownKeys = true}
+    private val json = Json { ignoreUnknownKeys = true }
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)

@@ -1,24 +1,44 @@
 <resources>
     <string name="app_name">Media Diary</string>
-    <string name="search_label">Поиск сериалов и фильмов</string>
+    <string name="search_label">Что хотите посмотреть?</string>
     <string name="movie">Фильм</string>
     <string name="series">Сериал</string>
     <string name="anime">Аниме</string>
     <string name="cartoon">Мультфильм</string>
     <string name="animated_series">Мультсериал</string>
     <string name="rating">Рейтинг: </string>
-    <string name="duration">Длительность: </string>
+    <string name="country">Страна: </string>
+    <string name="year">Год выхода: </string>
+    <string name="director">Режиссер: </string>
+    <string name="age">Возрастное ограничение: </string>
+    <string name="actors">Актеры: </string>
+    <string name="genres">Жанр: </string>
+    <string name="description">Описание: </string>
+    <string name="duration">Длительность (мин.): </string>
     <string name="empty_collection">Здесь ничего нет.</string>
     <string name="already_in_collection">Уже в коллекции</string>
     <string name="successfully_added">Добавлено в "Хочу посмотреть"</string>
     <string name="back">Назад</string>
-    <string name="description">Описание</string>
-    <string name="no_description">Нет описания</string>
     <string name="user_rating">Ваша оценка:</string>
     <string name="select_date">Дата просмотра:</string>
-    <string name="select_date_label">Дата просмотра</string>
     <string name="note">Заметка:</string>
     <string name="note_label">Ваши впечатления</string>
+    <string name="status">Статус:</string>
+    <string name="about_movie">О фильме:</string>
+    <string name="about_series">О сериале:</string>
+    <string name="add">Добавить</string>
+    <string name="trendingMovies">Популярные фильмы</string>
+    <string name="trendingSeries">Популярные сериалы</string>
+    <string name="trendingAnime">Популярное аниме</string>
+    <string name="trendingCartoons">Популярные мультфильмы</string>
+    <string name="trendingAnimatedSeries">Популярные мультсериалы</string>
+    <string name="statistics">Ваша статистика</string>
+    <string name="total_in_collection">Всего в коллекции</string>
+    <string name="watched">Просмотрено</string>
+    <string name="watching">Смотрю</string>
+    <string name="want_to_watch">Хочу посмотреть</string>
+    <string name="show_more">Узнать больше</string>
+    <string name="show_less">Скрыть</string>
 
 
 </resources>

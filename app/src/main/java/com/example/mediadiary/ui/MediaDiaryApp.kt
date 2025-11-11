@@ -51,13 +51,17 @@ fun MediaDiaryApp() {
 }
 
 @Composable
-fun MediaDiaryBottomBar(navController: NavController, currentRoute: String?){
-    if(currentRoute !in listOf(SearchDestination.route, CollectionDestination.route,
-            StatisticsDestination.route)) return
+fun MediaDiaryBottomBar(navController: NavController, currentRoute: String?) {
+    if (currentRoute !in listOf(
+            SearchDestination.route, CollectionDestination.route,
+            StatisticsDestination.route
+        )
+    ) return
     val navItems = listOf(
         NavItem(SearchDestination.route, "Поиск", Icons.Default.Search),
         NavItem(CollectionDestination.route, "Коллекция", Icons.Default.Favorite),
-        NavItem(StatisticsDestination.route, "Статистика", Icons.Default.BarChart
+        NavItem(
+            StatisticsDestination.route, "Статистика", Icons.Default.BarChart
         )
     )
     NavigationBar {

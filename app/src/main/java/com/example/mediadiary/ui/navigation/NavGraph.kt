@@ -1,6 +1,5 @@
 package com.example.mediadiary.ui.navigation
 
-import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -29,30 +28,34 @@ fun MediaDiaryNavHost(
         startDestination = SearchDestination.route,
         modifier = modifier
     ) {
-        composable(route = SearchDestination.route){
+        composable(route = SearchDestination.route) {
             SearchScreen(
                 modifier = Modifier,
                 contentPadding = contentPadding,
-                onItemClick = {mediaId ->
-                    Log.d("DEBUGGING", "clicked mediaId = $mediaId")
+                onItemClick = { mediaId ->
                     navController.navigate("media_detail/$mediaId")
                 })
         }
         composable(route = CollectionDestination.route) {
             CollectionsScreen(
                 contentPadding = contentPadding,
-                onCollectionItemClick = {collectionItemId ->
-                    Log.d("DEBUGGING", "clicked mediaId = $collectionItemId")
+                onCollectionItemClick = { collectionItemId ->
                     navController.navigate("media_detail/$collectionItemId")
                 }
             )
         }
-        composable(route = MediaDetailDestination.route,
-            arguments = listOf(navArgument(MediaDetailDestination.MEDIA_ID) {type = NavType.IntType}))
+        composable(
+            route = MediaDetailDestination.route,
+            arguments = listOf(navArgument(MediaDetailDestination.MEDIA_ID) {
+                type = NavType.IntType
+            })
+        )
         { backStackEntry ->
             val mediaItemId = backStackEntry.arguments?.getInt(MediaDetailDestination.MEDIA_ID) ?: 0
-            if(mediaItemId != 0){
-                MediaDetailsWrapper(mediaId = mediaItemId, onBack = {navController.popBackStack()})
+            if (mediaItemId != 0) {
+                MediaDetailsWrapper(
+                    mediaId = mediaItemId,
+                    onBack = { navController.popBackStack() })
             }
         }
         composable(route = StatisticsDestination.route) {

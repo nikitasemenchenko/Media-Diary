@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class StatisticsViewModel(private val repository: MediaRepository): ViewModel(){
+class StatisticsViewModel(private val repository: MediaRepository) : ViewModel() {
     private val _uiState = MutableStateFlow<MediaStats?>(null)
     val uiState = _uiState.asStateFlow()
 

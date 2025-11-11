@@ -1,5 +1,6 @@
 package com.example.mediadiary.data.remote.model
 
+import com.example.mediadiary.data.roundToOneSign
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -7,6 +8,7 @@ data class KinopoiskSearchResponse(
     val docs: List<SearchResult>
 
 )
+
 @Serializable
 data class SearchResult(
     val id: Int,
@@ -16,27 +18,31 @@ data class SearchResult(
     val type: String,
     val poster: KinopoiskPoster? = null,
     val genres: List<KinopoiskGenres> = emptyList(),
-    val rating: KinopoiskRating?
-){
-    fun getItemTitle(): String{
+    var rating: KinopoiskRating?
+) {
+    fun getItemTitle(): String {
         return name ?: alternativeName ?: "Без названия"
     }
-    fun getItemYear(): String{
+
+    fun getItemYear(): String {
         return year?.toString() ?: "Неизвестно"
     }
+
     fun getItemPoster(): String {
         return poster?.url ?: ""
     }
+
     fun getItemGenres(): String {
         val res = mutableListOf<String>()
-        for(i in genres){
+        for (i in genres) {
             res.add(i.name)
         }
         return res.joinToString(", ")
     }
+
     fun getItemType(): String {
-        val whichType = ""
-        return when(type) {
+        ""
+        return when (type) {
             "movie" -> "Фильм"
             "tv-series" -> "Сериал"
             "cartoon" -> "Мультфильм"
@@ -44,10 +50,11 @@ data class SearchResult(
             else -> "Мультсериал"
         }
     }
+
     fun getItemRating(): Double {
         val kp = rating?.kp ?: 0.0
         val imdb = rating?.imdb ?: 0.0
-        return if (kp > imdb) kp else imdb
+        return maxOf(kp, imdb).roundToOneSign()
     }
 }
 
@@ -67,40 +74,47 @@ data class KinopoiskSearchDetailedResponse(
     val seriesLength: Int?,
     val ageRating: Int?,
     val persons: List<KinopoiskPerson>?
-){
-    fun getItemTitle(): String{
+) {
+    fun getItemTitle(): String {
         return name ?: alternativeName ?: "Без названия"
     }
-    fun getItemYear(): String{
-        return year?.toString() ?: "Неизвестно"
+
+    fun getItemYear(): String {
+        return year?.toString() ?: "-"
     }
+
     fun getItemPoster(): String {
         return poster?.url ?: ""
     }
+
     fun getItemGenres(): String {
         val res = mutableListOf<String>()
-        for(i in genres){
+        for (i in genres) {
             res.add(i.name)
         }
-        return res.joinToString(", ")
+        return res.take(3).joinToString(", ")
     }
+
     fun getItemRating(): Double {
         val kp = rating?.kp ?: 0.0
         val imdb = rating?.imdb ?: 0.0
-        return if (kp > imdb) kp else imdb
+        return maxOf(kp, imdb).roundToOneSign()
+
     }
 
     fun getAge(): String {
-        return if(ageRating != null) "$ageRating+" else "-"
+        return if (ageRating != null) "$ageRating+" else "-"
     }
-    fun getCountriesList():String{
-        if(countries == null) return "-"
+
+    fun getCountriesList(): String {
+        if (countries == null) return "-"
         val countriesList = mutableListOf<String>()
-        for(x in countries) countriesList.add(x.name)
+        for (x in countries) countriesList.add(x.name)
         return countriesList.joinToString(", ")
     }
+
     fun getItemType(): String {
-        return when(type) {
+        return when (type) {
             "movie" -> "Фильм"
             "tv-series" -> "Сериал"
             "cartoon" -> "Мультфильм"
@@ -109,36 +123,40 @@ data class KinopoiskSearchDetailedResponse(
         }
     }
 
-    fun getItemDescription():String{
-        return description ?: "Нет описания"
+    fun getItemDescription(): String {
+        return description ?: "-"
     }
-    fun getDuration(): String{
-        return movieLength?.toString() ?: seriesLength?.toString() ?: "Неизвестно"
+
+    fun getDuration(): String {
+        return movieLength?.toString() ?: seriesLength?.toString() ?: "-"
     }
 
     fun getDirectorName(): String {
         val director = persons?.firstOrNull {
-           it.enProfession == "director"
+            it.enProfession == "director"
         }
-        return director?.name ?: "Неизвестно"
+        return director?.name ?: "-"
     }
 
     fun getActorsNames(): String {
         return persons
             ?.filter { it.enProfession == "actor" }
-            ?.take(6)?.joinToString(", ") { it.name ?: "Неизвестно" }
-            ?: "Нет информации об актерах"
+            ?.take(6)?.joinToString(", ") { it.name ?: "" }
+            ?: "-"
     }
 }
+
 @Serializable
 data class KinopoiskRating(
     val kp: Double,
     val imdb: Double,
 )
+
 @Serializable
 data class KinopoiskPoster(
     val url: String?,
 )
+
 @Serializable
 data class KinopoiskGenres(
     val name: String,

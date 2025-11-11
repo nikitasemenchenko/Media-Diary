@@ -4,10 +4,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.WatchLater
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,10 +25,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mediadiary.data.remote.model.MovieStatus
+import com.example.mediadiary.R
 import com.example.mediadiary.ui.AppViewModelProvider
 import com.example.mediadiary.ui.navigation.NavigationDestination
 
@@ -40,34 +52,76 @@ fun StatisticsScreen(
             CircularProgressIndicator()
         }
     } else {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            StatsCard(title = MovieStatus.WANT_TO_WATCH.statusName, value = stats!!.wantToWatch.toString())
-            StatsCard(title = MovieStatus.WATCHING.statusName, value = stats!!.watching.toString())
-            StatsCard(title = MovieStatus.WATCHED.statusName, value = stats!!.watched.toString())
+            Text(
+                text = stringResource(R.string.statistics),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            StatsDetailCard(
+                title = R.string.total_in_collection,
+                value = stats!!.total.toString(),
+                icon = Icons.Default.Favorite
+            )
+            StatsDetailCard(
+                title = R.string.watched,
+                value = stats!!.watched.toString(),
+                icon = Icons.Default.Visibility
+            )
+            StatsDetailCard(
+                title = R.string.watching,
+                value = stats!!.watching.toString(),
+                icon = Icons.Default.Visibility
+            )
+            StatsDetailCard(
+                title = R.string.want_to_watch,
+                value = stats!!.wantToWatch.toString(),
+                icon = Icons.Default.WatchLater
+            )
         }
     }
 }
 
+
 @Composable
-fun StatsCard(title: String, value: String){
+fun StatsDetailCard(title: Int, value: String, icon: ImageVector) {
     Card(
-        modifier = Modifier.padding(10.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        shape = MaterialTheme.shapes.medium
     ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                text = stringResource(title),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
             )
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }
