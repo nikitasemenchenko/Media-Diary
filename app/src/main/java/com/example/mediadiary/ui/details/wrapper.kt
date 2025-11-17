@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mediadiary.data.AppConstants.loading_eroor
+import com.example.mediadiary.data.AppConstants.loading_error
 import com.example.mediadiary.ui.AppViewModelProvider
 
 @Composable
@@ -29,7 +29,7 @@ fun MediaDetailsWrapper(
         try {
             vm.loadMediaItem(mediaId)
         } catch (e: Exception) {
-            error = loading_eroor
+            error = loading_error
         }
     }
     error?.let { ErrorMessage(it) }

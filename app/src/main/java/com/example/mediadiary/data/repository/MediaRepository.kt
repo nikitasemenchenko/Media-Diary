@@ -130,6 +130,13 @@ class MediaRepository(
         }
     }
 
+    suspend fun deleteMediaItem(item: MediaItem){
+        withContext(Dispatchers.IO){
+            mediaDao.delete(item)
+        }
+    }
+
+
     fun getCollection(): Flow<List<MediaItem>> = mediaDao.getAllItems()
 
     suspend fun getMediaStats(): MediaStats {

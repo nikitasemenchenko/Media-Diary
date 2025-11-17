@@ -38,7 +38,6 @@ fun MediaDiaryNavHost(
         }
         composable(route = CollectionDestination.route) {
             CollectionsScreen(
-                contentPadding = contentPadding,
                 onCollectionItemClick = { collectionItemId ->
                     navController.navigate("media_detail/$collectionItemId")
                 }

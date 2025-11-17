@@ -24,12 +24,6 @@ data class MediaItem(
     val addedAt: Long? = System.currentTimeMillis(),
     val userNote: String? = null
 ) {
-    fun isMovie(): Boolean = type == "Фильм"
-    fun isTvSeries(): Boolean = type == "Сериал"
-    fun isCartoon(): Boolean = type == "Мультфильм"
-    fun isAnime(): Boolean = type == "Аниме"
-    fun isAnimatedSeries(): Boolean = type == "Мультсериал"
-
     companion object {
         fun fromDetailedSearchResult(item: KinopoiskSearchDetailedResponse): MediaItem {
             return MediaItem(
@@ -73,9 +67,9 @@ data class MediaItem(
 }
 
 enum class MovieStatus(val statusName: String) {
-    WATCHED("Просмотрено"),
+    WANT_TO_WATCH("Хочу посмотреть"),
     WATCHING("Смотрю"),
-    WANT_TO_WATCH("Хочу посмотреть");
+    WATCHED("Просмотрено");
 
     companion object {
         fun fromString(value: String): MovieStatus? {

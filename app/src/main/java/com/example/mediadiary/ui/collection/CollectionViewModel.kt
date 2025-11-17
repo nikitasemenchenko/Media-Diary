@@ -10,8 +10,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class CollectionViewModel(private val repository: MediaRepository) : ViewModel() {
+    private val _selectedItems = MutableStateFlow<Set<Int>>(emptySet())
+    val selectedItems = _selectedItems.asStateFlow()
+
     private val _selectedTab = MutableStateFlow(MovieStatus.WANT_TO_WATCH)
     val selectedTab = _selectedTab.asStateFlow()
     val mediaItems = combine(
@@ -28,5 +32,27 @@ class CollectionViewModel(private val repository: MediaRepository) : ViewModel()
 
     fun selectTab(status: MovieStatus) {
         _selectedTab.value = status
+    }
+
+    fun toggleSelection(id: Int) {
+        _selectedItems.value = _selectedItems.value.toMutableSet().apply {
+            if (contains(id)) remove(id) else add(id)
+        }.toSet()
+    }
+
+    fun clearSelection() {
+        _selectedItems.value = emptySet()
+    }
+
+    fun deleteSelected() {
+        val toDelete = _selectedItems.value.toList()
+        if (toDelete.isEmpty()) return
+        viewModelScope.launch {
+            toDelete.forEach { id ->
+                val item = repository.getOrCreateMediaItem(id)
+                repository.deleteMediaItem(item)
+            }
+            clearSelection()
+        }
     }
 }

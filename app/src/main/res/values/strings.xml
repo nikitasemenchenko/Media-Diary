@@ -39,6 +39,8 @@
     <string name="want_to_watch">Хочу посмотреть</string>
     <string name="show_more">Узнать больше</string>
     <string name="show_less">Скрыть</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Отменить</string>
 
 
 </resources>
