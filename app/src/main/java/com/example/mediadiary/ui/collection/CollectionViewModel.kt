@@ -45,13 +45,14 @@ class CollectionViewModel(private val repository: MediaRepository) : ViewModel()
         _uiState.update { it.copy(selectedTab = tab) }
     }
 
-    fun toggleSelection(id: Int) {
+    fun toggleDeletion(id: Int) {
         _uiState.update {
             val updated = it.selectedItems.toMutableSet()
             if (updated.contains(id)) updated.remove(id) else updated.add(id)
             it.copy(selectedItems = updated)
         }
     }
+
 
     fun clearSelection() {
         _uiState.update {

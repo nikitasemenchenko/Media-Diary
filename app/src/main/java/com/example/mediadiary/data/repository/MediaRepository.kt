@@ -87,6 +87,12 @@ class MediaRepository(
         return kpApi.getById(id = id)
     }
 
+    suspend fun deleteMediaItem(item: MediaItem){
+        return withContext(Dispatchers.IO){
+            mediaDao.delete(item)
+        }
+    }
+
 
     suspend fun addToWishList(item: KinopoiskSearchDetailedResponse): Boolean {
         return withContext(Dispatchers.IO) {

@@ -30,7 +30,19 @@ class MediaDetailViewModel(private val repository: MediaRepository) : ViewModel(
     }
 
     fun updateStatus(newStatus: MovieStatus) {
-        updateItem { it.copy(watchStatus = newStatus) }
+        val current = _uiState.value
+        if (current !is MediaDetailUiState.Success) return
+
+        val currentItem = current.item
+
+        if (currentItem.watchStatus == newStatus) {
+            viewModelScope.launch {
+                repository.deleteMediaItem(currentItem)
+                _uiState.value = MediaDetailUiState.Success(currentItem.copy(watchStatus = null)) // Или MovieStatus.UNSET
+            }
+        } else {
+            updateItem { it.copy(watchStatus = newStatus) }
+        }
     }
 
     fun updateRating(newRating: Int?) {
@@ -56,5 +68,6 @@ class MediaDetailViewModel(private val repository: MediaRepository) : ViewModel(
             repository.createOrUpdateItem(updated)
         }
     }
+
 
 }

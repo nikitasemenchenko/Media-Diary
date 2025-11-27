@@ -201,8 +201,14 @@ fun StatusSelector(currentStatus: MovieStatus?, onStatusClick: (MovieStatus) -> 
                 MovieStatus.WATCHING -> Icons.Default.Visibility
                 MovieStatus.WATCHED -> Icons.Default.CheckCircle
             }
+            val labelResId = when (status) {
+                MovieStatus.WANT_TO_WATCH -> R.string.want_to_watch
+                MovieStatus.WATCHING -> R.string.watching
+                MovieStatus.WATCHED -> R.string.watched
+            }
             StatusTab(
                 icon = icon,
+                label = labelResId,
                 selected = currentStatus == status,
                 onClick = { onStatusClick(status) })
         }
@@ -210,27 +216,44 @@ fun StatusSelector(currentStatus: MovieStatus?, onStatusClick: (MovieStatus) -> 
 }
 
 @Composable
-fun StatusTab(icon: ImageVector, selected: Boolean, onClick: () -> Unit) {
-    Box(
+fun StatusTab(
+    icon: ImageVector,
+    @StringRes label: Int,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
         modifier = Modifier
-            .height(59.dp)
-            .width(50.dp)
             .clickable { onClick() }
             .padding(4.dp),
-        contentAlignment = Alignment.Center) {
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
+    ) {
         Icon(
             imageVector = icon,
-            contentDescription = stringResource(R.string.status),
+            contentDescription = stringResource(label),
             tint = if (selected) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.onSurface.copy(0.7f),
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(32.dp)
         )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = stringResource(label),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Medium,
+            color = if (selected) MaterialTheme.colorScheme.primary else Color.Gray,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
         if (selected) {
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .height(3.dp)
-                    .width(35.dp)
+                    .padding(top = 4.dp)
+                    .height(2.dp)
+                    .width(40.dp)
                     .background(MaterialTheme.colorScheme.primary)
             )
         }

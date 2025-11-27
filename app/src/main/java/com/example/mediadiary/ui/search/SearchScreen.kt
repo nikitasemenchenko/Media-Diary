@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -404,7 +403,7 @@ fun SearchResultCard(
             Box(
                 modifier = Modifier
                     .size(width = 100.dp, height = 140.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(MaterialTheme.shapes.medium)
             ) {
                 AsyncImage(
                     model = request,
@@ -454,7 +453,7 @@ fun SearchResultCard(
                     ) {
                         Text(
                             text = stringResource(item.getItemType().resId),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
                         )
@@ -462,7 +461,7 @@ fun SearchResultCard(
 
                     Text(
                         text = item.year?.toString() ?: stringResource(R.string.unknown_year),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -475,7 +474,7 @@ fun SearchResultCard(
 
                 Text(
                     text = genresText,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis

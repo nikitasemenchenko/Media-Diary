@@ -140,8 +140,8 @@ fun CollectionsScreen(
                             isSelected = uiState.selectedItems.contains(item.id),
                             isSelectionMode = uiState.selectedItems.isNotEmpty(),
                             onItemClick = onCollectionItemClick,
-                            onToggleSelection = { vm.toggleSelection(it) },
-                            onLongClick = { vm.toggleSelection(it) }
+                            onToggleSelection = { vm.toggleDeletion(it) },
+                            onLongClick = { vm.toggleDeletion(it) }
                         )
                     }
                     item {
