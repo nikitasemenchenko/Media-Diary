@@ -1,79 +1,43 @@
 package com.example.mediadiary.data.remote.model
 
+import androidx.annotation.StringRes
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.mediadiary.R
 
-@Entity("media_items")
+@Entity(
+    "media_items",
+    indices = [
+        Index(value = ["watchStatus", "addedAt"]),
+        Index(value = ["type", "addedAt"]),
+        Index(value = ["id", "watchStatus"])
+    ]
+)
 data class MediaItem(
     @PrimaryKey val id: Int,
-    val title: String,
-    val year: String,
-    val description: String?,
-    val type: String,
-    val rating: Double,
-    val poster: String,
-    val genres: String,
-    val ageRating: String?,
-    val director: String?,
-    val actors: String?,
-    val countries: String?,
-    val length: String?,
+    val title: String?,
+    val year: Int?,
+    val description: String? = null,
+    val type: ContentType?,
+    val rating: Double?,
+    val poster: String?,
+    val genres: List<String>? = emptyList(),
+    val ageRating: String? = null,
+    val director: String? = null,
+    val actors: String? = null,
+    val countries: String? = null,
+    val length: String? = null,
     val watchStatus: MovieStatus? = null,
     val userRating: Int? = null,
     val watchDate: Long? = null,
     val addedAt: Long? = System.currentTimeMillis(),
     val userNote: String? = null
-) {
-    companion object {
-        fun fromDetailedSearchResult(item: KinopoiskSearchDetailedResponse): MediaItem {
-            return MediaItem(
-                id = item.id,
-                title = item.getItemTitle(),
-                year = item.getItemYear(),
-                description = item.getItemDescription(),
-                type = item.getItemType(),
-                rating = item.getItemRating(),
-                poster = item.getItemPoster(),
-                genres = item.getItemGenres(),
-                ageRating = item.getAge(),
-                director = item.getDirectorName(),
-                actors = item.getActorsNames(),
-                countries = item.getCountriesList(),
-                length = item.getDuration()
+)
 
-            )
-        }
-
-        fun onAddToWishList(item: KinopoiskSearchDetailedResponse): MediaItem {
-            return MediaItem(
-                id = item.id,
-                title = item.getItemTitle(),
-                year = item.getItemYear(),
-                description = item.getItemDescription(),
-                type = item.getItemType(),
-                rating = item.getItemRating(),
-                poster = item.getItemPoster(),
-                genres = item.getItemGenres(),
-                ageRating = item.getAge(),
-                director = item.getDirectorName(),
-                actors = item.getActorsNames(),
-                countries = item.getCountriesList(),
-                length = item.getDuration(),
-                watchStatus = MovieStatus.WANT_TO_WATCH
-
-            )
-        }
-    }
+enum class MovieStatus(@StringRes val resId: Int) {
+    WANT_TO_WATCH(R.string.want_to_watch),
+    WATCHING(R.string.watching),
+    WATCHED(R.string.watched)
 }
 
-enum class MovieStatus(val statusName: String) {
-    WANT_TO_WATCH("Хочу посмотреть"),
-    WATCHING("Смотрю"),
-    WATCHED("Просмотрено");
-
-    companion object {
-        fun fromString(value: String): MovieStatus? {
-            return entries.find { it.statusName == value }
-        }
-    }
-}

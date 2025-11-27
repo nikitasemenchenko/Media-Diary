@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,11 +21,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,28 +43,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.mediadiary.R
 import com.example.mediadiary.data.remote.model.SearchResult
 import com.example.mediadiary.ui.AppViewModelProvider
-import com.example.mediadiary.ui.navigation.NavigationDestination
+import roundToOneSign
 
-
-object SearchDestination : NavigationDestination {
-    override val route = "search"
-}
 
 @Composable
 fun SearchScreen(
@@ -70,19 +71,14 @@ fun SearchScreen(
     contentPadding: PaddingValues = PaddingValues(),
     onItemClick: (Int) -> Unit
 ) {
-    val trendMovies by vm.trendingMovies.collectAsState()
-    val trendSeries by vm.trendingSeries.collectAsState()
-    val trendAnime by vm.trendingAnime.collectAsState()
-    val trendCartoons by vm.trendingCartoon.collectAsState()
-    val trendAnimatedSeries by vm.trendingAnimatedSeries.collectAsState()
+    val uiState by vm.uiState.collectAsState()
     val searchResults by vm.searchResults.collectAsState()
-    val isLoading by vm.isLoading.collectAsState()
     val searchQuery by vm.searchQuery.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(vm.events) {
-        vm.events.collect { message ->
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        vm.events.collect { messageResId ->
+            Toast.makeText(context, context.getString(messageResId), Toast.LENGTH_SHORT).show()
         }
     }
     Column(
@@ -103,80 +99,134 @@ fun SearchScreen(
                     contentDescription = stringResource(R.string.search_label)
                 )
             },
-            shape = MaterialTheme.shapes.medium
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { vm.clearQuery() }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.clear_query)
+                        )
+                    }
+                }
+            },
+            shape = MaterialTheme.shapes.medium,
+            singleLine = true
         )
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .fillMaxWidth()
         ) {
-            if (isLoading) {
-                item {
+            when {
+                uiState.isLoading -> {
                     Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillParentMaxSize()
-                            .padding(24.dp)
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
                     }
                 }
-            } else if (searchQuery.isNotBlank()) {
-                items(searchResults) { item ->
-                    SearchResultCard(
-                        item = item,
-                        onAddToWishlist = vm::addItemToWishlist,
-                        onItemClick = onItemClick
-                    )
-                }
-            } else {
-                item {
-                    CategoryCarousel(
-                        title = R.string.trendingMovies,
-                        list = trendMovies,
-                        onAddToWishlist = vm::addItemToWishlist,
-                        onItemClick = onItemClick
-                    )
+
+                uiState.errorMessage != null -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = stringResource(uiState.errorMessage!!),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                if (searchQuery.isBlank()) vm.loadTrending() else
+                                    vm.onQueryChanged(searchQuery)
+                            }
+                        ) {
+                            Text(text = stringResource(R.string.retry))
+                        }
+                    }
                 }
 
-                item {
-                    CategoryCarousel(
-                        title = R.string.trendingSeries,
-                        list = trendSeries,
-                        onAddToWishlist = vm::addItemToWishlist,
-                        onItemClick = onItemClick
-                    )
+                searchQuery.isNotBlank() -> {
+                    if (searchResults.isEmpty()) {
+                        NoResults()
+                    } else {
+                        LazyColumn(
+                            contentPadding = PaddingValues(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(searchResults, key = { it.id }) { item ->
+                                SearchResultCard(
+                                    item = item,
+                                    onAddToWishlist = vm::addItemToWishlist,
+                                    onItemClick = onItemClick
+                                )
+                            }
+                        }
+                    }
                 }
 
-                item {
-                    CategoryCarousel(
-                        title = R.string.trendingAnime,
-                        list = trendAnime,
-                        onAddToWishlist = vm::addItemToWishlist,
-                        onItemClick = onItemClick
-                    )
+                else -> {
+                    LazyColumn(
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        item {
+                            CategoryCarousel(
+                                title = R.string.trendingMovies,
+                                list = uiState.trendingMovies,
+                                onAddToWishlist = vm::addItemToWishlist,
+                                onItemClick = onItemClick
+                            )
+                        }
+                        item {
+                            CategoryCarousel(
+                                title = R.string.trendingSeries,
+                                list = uiState.trendingSeries,
+                                onAddToWishlist = vm::addItemToWishlist,
+                                onItemClick = onItemClick
+                            )
+                        }
+                        item {
+                            CategoryCarousel(
+                                title = R.string.trendingAnime,
+                                list = uiState.trendingAnime,
+                                onAddToWishlist = vm::addItemToWishlist,
+                                onItemClick = onItemClick
+                            )
+                        }
+                        item {
+                            CategoryCarousel(
+                                title = R.string.trendingCartoons,
+                                list = uiState.trendingCartoons,
+                                onAddToWishlist = vm::addItemToWishlist,
+                                onItemClick = onItemClick
+                            )
+                        }
+                        item {
+                            CategoryCarousel(
+                                title = R.string.trendingAnimatedSeries,
+                                list = uiState.trendingAnimatedSeries,
+                                onAddToWishlist = vm::addItemToWishlist,
+                                onItemClick = onItemClick
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                        }
+                    }
                 }
-
-                item {
-                    CategoryCarousel(
-                        title = R.string.trendingCartoons,
-                        list = trendCartoons,
-                        onAddToWishlist = vm::addItemToWishlist,
-                        onItemClick = onItemClick
-                    )
-                }
-
-                item {
-                    CategoryCarousel(
-                        title = R.string.trendingAnimatedSeries,
-                        list = trendAnimatedSeries,
-                        onAddToWishlist = vm::addItemToWishlist,
-                        onItemClick = onItemClick
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-
             }
         }
     }
@@ -201,22 +251,24 @@ fun CategoryCarousel(
     onAddToWishlist: (SearchResult) -> Unit,
     onItemClick: (Int) -> Unit
 ) {
-    if (list.isEmpty()) {
-        return
-    }
+    if (list.isEmpty()) return
+
     SectionHeader(title = title)
     LazyRow(
         contentPadding = PaddingValues(horizontal = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(235.dp)
+            .height(235.dp),
+        state = rememberLazyListState()
     ) {
-        items(list.size) { index ->
-            val item = list[index]
+        items(
+            list,
+            key = { it.id },
+            contentType = { "trending_item" }) { item ->
             MovieCard(
                 title = item.getItemTitle(),
-                posterUrl = item.getItemPoster(),
+                posterUrl = item.poster?.url,
                 rating = item.getItemRating(),
                 onAdd = { onAddToWishlist(item) },
                 onClick = { onItemClick(item.id) }
@@ -227,12 +279,25 @@ fun CategoryCarousel(
 
 @Composable
 fun MovieCard(
-    title: String,
-    posterUrl: String,
-    rating: Double,
+    title: String?,
+    posterUrl: String?,
+    rating: Double?,
     onAdd: () -> Unit,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val request = remember(posterUrl) {
+        ImageRequest.Builder(context)
+            .data(posterUrl)
+            .placeholder(R.drawable.loading_img)
+            .error(R.drawable.ic_connection_error)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .allowHardware(true)
+            .crossfade(true)
+            .build()
+    }
+
     Card(
         modifier = Modifier
             .width(130.dp)
@@ -243,15 +308,17 @@ fun MovieCard(
         Column {
             Box {
                 AsyncImage(
-                    model = posterUrl.takeIf { it.isNotBlank() },
+                    model = request,
                     contentDescription = title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .height(185.dp)
                         .fillMaxWidth()
                 )
+                val ratingText =
+                    rating?.roundToOneSign()?.toString() ?: stringResource(R.string.unknown_value)
                 Text(
-                    text = rating.toString(),
+                    text = ratingText,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -283,7 +350,7 @@ fun MovieCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = title,
+                    text = title ?: stringResource(R.string.unknown_title),
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -299,6 +366,19 @@ fun SearchResultCard(
     onAddToWishlist: (SearchResult) -> Unit,
     onItemClick: (Int) -> Unit
 ) {
+    val context = LocalContext.current
+    val request = remember(item.poster?.url) {
+        ImageRequest.Builder(context)
+            .data(item.poster?.url)
+            .placeholder(R.drawable.loading_img)
+            .error(R.drawable.ic_connection_error)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .crossfade(true)
+            .allowHardware(true)
+            .build()
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -318,38 +398,26 @@ fun SearchResultCard(
         Row(
             modifier = Modifier
                 .padding(12.dp)
-                .height(IntrinsicSize.Min),
+                .height(150.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(width = 96.dp, height = 136.dp)
+                    .size(width = 100.dp, height = 140.dp)
                     .clip(RoundedCornerShape(8.dp))
             ) {
                 AsyncImage(
-                    model = item.getItemPoster().takeIf { it.isNotBlank() },
+                    model = request,
                     contentDescription = item.getItemTitle(),
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .matchParentSize()
+                    modifier = Modifier.matchParentSize()
                 )
 
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.65f)
-                                ),
-                                startY = 60f
-                            )
-                        )
-                )
+                val ratingText = item.getItemRating()?.roundToOneSign()?.toString()
+                    ?: stringResource(R.string.unknown_value)
 
                 Text(
-                    text = item.getItemRating().toString(),
+                    text = ratingText,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -370,7 +438,7 @@ fun SearchResultCard(
                     .padding(end = 8.dp)
             ) {
                 Text(
-                    text = item.getItemTitle(),
+                    text = item.getItemTitle() ?: stringResource(R.string.unknown_title),
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -380,12 +448,12 @@ fun SearchResultCard(
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                        shape = MaterialTheme.shapes.large,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                         modifier = Modifier.padding(end = 8.dp)
                     ) {
                         Text(
-                            text = item.getItemType(),
+                            text = stringResource(item.getItemType().resId),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
@@ -393,7 +461,7 @@ fun SearchResultCard(
                     }
 
                     Text(
-                        text = item.getItemYear(),
+                        text = item.year?.toString() ?: stringResource(R.string.unknown_year),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -401,8 +469,12 @@ fun SearchResultCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                val genresText = item.getItemGenres().joinToString(", ").ifEmpty {
+                    stringResource(R.string.unknown_value)
+                }
+
                 Text(
-                    text = item.getItemGenres(),
+                    text = genresText,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
@@ -433,6 +505,38 @@ fun SearchResultCard(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun NoResults() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                imageVector = Icons.Default.Warning,
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = stringResource(R.string.no_results),
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.try_another_query),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

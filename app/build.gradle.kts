@@ -16,11 +16,11 @@ android {
 
     defaultConfig {
         applicationId = "com.example.mediadiary"
-        minSdk = 24
+        minSdk = 31
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "OMDB_API_KEY", "\"${kpApiKey ?: ""}\"")
+        buildConfigField("String", "KP_API_KEY", "\"${kpApiKey ?: ""}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -78,5 +78,6 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.0")
     implementation("androidx.navigation:navigation-compose:2.8.9")
     implementation("androidx.compose.material:material-icons-extended:1.7.7")
-
+    implementation("androidx.compose.runtime:runtime-saveable:1.7.7")
+    implementation("androidx.core:core-splashscreen:1.0.0")
 }

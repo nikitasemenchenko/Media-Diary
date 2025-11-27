@@ -21,13 +21,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.WatchLater
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,39 +52,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.mediadiary.R
 import com.example.mediadiary.data.remote.model.MediaItem
 import com.example.mediadiary.data.remote.model.MovieStatus
-import com.example.mediadiary.data.roundToOneSign
-import com.example.mediadiary.ui.AppViewModelProvider
-import com.example.mediadiary.ui.navigation.NavigationDestination
 import com.example.mediadiary.ui.theme.gold
 import com.example.mediadiary.ui.theme.green
+import roundToOneSign
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-object MediaDetailDestination : NavigationDestination {
-    const val MEDIA_ID = "mediaId"
-    override val route = "media_detail/{$MEDIA_ID}"
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaDetailScreen(
-    vm: MediaDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
     item: MediaItem,
     onStatusClick: (MovieStatus) -> Unit,
     onRatingChange: (Int) -> Unit,
@@ -89,8 +86,6 @@ fun MediaDetailScreen(
     onNoteChange: (String?) -> Unit,
     onBack: () -> Unit
 ) {
-    val scrollState = rememberScrollState()
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -109,84 +104,40 @@ fun MediaDetailScreen(
         Column(
             modifier = Modifier
                 .padding(contentPadding)
-                .verticalScroll(scrollState)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            PosterHeader(
-                posterUrl = item.poster,
-                title = item.title,
-                ratingText = item.rating.roundToOneSign(),
+            PosterHeader(item)
+
+            MediaInfoSection(item)
+
+            GenreSection(item)
+
+            DescriptionSection(item)
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Title(R.string.status)
 
-            // Info grid
-            InfoRow(R.string.year, item.year)
-            InfoRow(R.string.country, item.countries)
-            InfoRow(R.string.director, item.director)
-            InfoRow(R.string.duration, item.length)
-            InfoRow(R.string.age, item.ageRating)
-            InfoRow(R.string.actors, item.actors)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (item.genres.isNotBlank()) {
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    item.genres.split(",").map { it.trim() }.take(6).forEach { g ->
-                        GenreChip(g)
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            if (!item.description.isNullOrBlank()) {
-                ExpandableText(
-                    text = item.description,
-                    initiallyExpanded = false,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-            Text(
-                text = stringResource(R.string.status),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
             StatusSelector(currentStatus = item.watchStatus, onStatusClick)
 
             if (item.watchStatus == MovieStatus.WATCHED) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.user_rating),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
+                Title(R.string.user_rating)
+
                 StarRatingSelector(rating = item.userRating, onRatingChanged = onRatingChange)
 
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.select_date),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
+                Title(R.string.select_date)
+
                 WatchDateSelector(
                     watchDate = item.watchDate ?: item.addedAt,
                     onDateChanged = onDateChange
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.note),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
+                Title(R.string.note)
+
                 OutlinedTextField(
                     value = item.userNote ?: "",
                     onValueChange = { onNoteChange(it.ifEmpty { null }) },
@@ -205,16 +156,53 @@ fun MediaDetailScreen(
 }
 
 @Composable
+fun Title(@StringRes resId: Int) {
+    Text(
+        text = stringResource(resId),
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
+fun MediaInfoSection(item: MediaItem) {
+    InfoRow(R.string.year, item.year?.toString())
+    InfoRow(R.string.country, item.countries)
+    InfoRow(R.string.director, item.director)
+    InfoRow(R.string.duration, item.length)
+    InfoRow(R.string.age, item.ageRating)
+    InfoRow(R.string.actors, item.actors)
+}
+
+@Composable
+fun GenreSection(item: MediaItem) {
+    val genres = item.genres
+    if (genres.isNullOrEmpty()) return
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item.genres.forEach { g -> GenreChip(g) }
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
 fun StatusSelector(currentStatus: MovieStatus?, onStatusClick: (MovieStatus) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 4.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         MovieStatus.entries.forEach { status ->
+            val icon = when (status) {
+                MovieStatus.WANT_TO_WATCH -> Icons.Default.WatchLater
+                MovieStatus.WATCHING -> Icons.Default.Visibility
+                MovieStatus.WATCHED -> Icons.Default.CheckCircle
+            }
             StatusTab(
-                text = status.statusName,
+                icon = icon,
                 selected = currentStatus == status,
                 onClick = { onStatusClick(status) })
         }
@@ -222,28 +210,27 @@ fun StatusSelector(currentStatus: MovieStatus?, onStatusClick: (MovieStatus) -> 
 }
 
 @Composable
-fun StatusTab(text: String, selected: Boolean, onClick: () -> Unit) {
+fun StatusTab(icon: ImageVector, selected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .height(70.dp)
+            .height(59.dp)
+            .width(50.dp)
             .clickable { onClick() }
-            .padding(8.dp),
+            .padding(4.dp),
         contentAlignment = Alignment.Center) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (selected) MaterialTheme.colorScheme.primary
+        Icon(
+            imageVector = icon,
+            contentDescription = stringResource(R.string.status),
+            tint = if (selected) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.onSurface.copy(0.7f),
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            textAlign = TextAlign.Center,
-            maxLines = 2
+            modifier = Modifier.size(40.dp)
         )
         if (selected) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .height(3.dp)
-                    .width(40.dp)
+                    .width(35.dp)
                     .background(MaterialTheme.colorScheme.primary)
             )
         }
@@ -252,7 +239,7 @@ fun StatusTab(text: String, selected: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun InfoRow(@StringRes label: Int, value: String?) {
-    if (value.isNullOrBlank() || value == "-") return
+    if (value.isNullOrBlank()) return
     Text(
         text = buildAnnotatedString {
             withStyle(
@@ -312,7 +299,7 @@ fun WatchDateSelector(
         value = if (watchDate != null) {
             convertMillisToDate(watchDate)
         } else {
-            "Дата не выбрана"
+            stringResource(R.string.no_date)
         },
         onValueChange = {},
         readOnly = true,
@@ -338,13 +325,18 @@ fun WatchDateSelector(
                     onDateChanged(datePickerState.selectedDateMillis)
                     showDialog = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
             },
-            dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Отмена") } },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDialog = false
+                }) { Text(stringResource(R.string.cancel)) }
+            },
             content = {
                 DatePicker(state = datePickerState)
-            })
+            }
+        )
     }
 }
 
@@ -355,10 +347,21 @@ fun convertMillisToDate(millis: Long): String {
 
 @Composable
 fun PosterHeader(
-    posterUrl: String?,
-    title: String,
-    ratingText: Double
+    item: MediaItem
 ) {
+    val context = LocalContext.current
+    val request = remember(item.poster) {
+        ImageRequest.Builder(context)
+            .data(item.poster)
+            .allowHardware(true)
+            .placeholder(R.drawable.loading_img)
+            .error(R.drawable.ic_connection_error)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .crossfade(true)
+            .build()
+    }
+
     @Composable
     fun ratingColor(rating: Double): Color {
         return when {
@@ -368,14 +371,19 @@ fun PosterHeader(
         }
     }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(550.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+    ) {
         AsyncImage(
-            model = posterUrl,
-            contentDescription = title,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(MaterialTheme.shapes.medium),
-            contentScale = ContentScale.Crop
+            model = request,
+            contentDescription = item.title,
+            modifier = Modifier.matchParentSize(),
+            contentScale = ContentScale.Crop,
+            alignment = Alignment.Center
         )
 
         Box(
@@ -393,7 +401,7 @@ fun PosterHeader(
         )
 
         Text(
-            text = title,
+            text = item.title ?: stringResource(R.string.unknown_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -402,38 +410,42 @@ fun PosterHeader(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
+        val ratingValue = item.rating
+        val ratingText =
+            ratingValue?.roundToOneSign()?.toString() ?: stringResource(R.string.unknown_value)
 
         Surface(
             shape = MaterialTheme.shapes.medium,
-            color = ratingColor(ratingText),
+            color = if (ratingValue != null) ratingColor(item.rating.roundToOneSign()) else MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(12.dp)
         ) {
             Text(
-                text = ratingText.toString(),
+                text = ratingText,
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = Color.Black
             )
         }
     }
 }
 
 @Composable
-fun ExpandableText(
-    modifier: Modifier = Modifier,
-    text: String,
+fun DescriptionSection(
+    item: MediaItem,
     initiallyExpanded: Boolean = false,
 ) {
+    if (item.description.isNullOrBlank()) return
+
     var expanded by remember { mutableStateOf(initiallyExpanded) }
     val maxLines = if (expanded) Int.MAX_VALUE else 4
     var isOverflowing by remember { mutableStateOf(false) }
     var checkNeeded by remember { mutableStateOf(true) }
-    Column(modifier = modifier) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = text,
+            text = item.description,
             maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
             onTextLayout = { textLayoutResult ->

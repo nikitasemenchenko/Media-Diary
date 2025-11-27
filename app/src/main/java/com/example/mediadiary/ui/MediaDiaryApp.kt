@@ -1,5 +1,6 @@
 package com.example.mediadiary.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
@@ -15,18 +16,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.mediadiary.ui.collection.CollectionDestination
+import com.example.mediadiary.R
 import com.example.mediadiary.ui.navigation.MediaDiaryNavHost
-import com.example.mediadiary.ui.search.SearchDestination
-import com.example.mediadiary.ui.statistics.StatisticsDestination
+import com.example.mediadiary.ui.navigation.Screen
 
 
 data class NavItem(
     val route: String,
-    val title: String,
+    @StringRes val title: Int,
     val icon: ImageVector
 )
 
@@ -52,17 +54,20 @@ fun MediaDiaryApp() {
 
 @Composable
 fun MediaDiaryBottomBar(navController: NavController, currentRoute: String?) {
-    if (currentRoute !in listOf(
-            SearchDestination.route, CollectionDestination.route,
-            StatisticsDestination.route
-        )
-    ) return
+    val showBottomBar = when (currentRoute) {
+        Screen.Search.route,
+        Screen.Collection.route,
+        Screen.Statistics.route -> true
+
+        else -> false
+    }
+
+    if (!showBottomBar) return
+
     val navItems = listOf(
-        NavItem(SearchDestination.route, "Поиск", Icons.Default.Search),
-        NavItem(CollectionDestination.route, "Коллекция", Icons.Default.Favorite),
-        NavItem(
-            StatisticsDestination.route, "Статистика", Icons.Default.BarChart
-        )
+        NavItem(Screen.Search.route, R.string.search_screen, Icons.Default.Search),
+        NavItem(Screen.Collection.route, R.string.collection_screen, Icons.Default.Favorite),
+        NavItem(Screen.Statistics.route, R.string.statistics_screen, Icons.Default.BarChart)
     )
     NavigationBar {
         navItems.forEach { item ->
@@ -70,17 +75,23 @@ fun MediaDiaryBottomBar(navController: NavController, currentRoute: String?) {
                 selected = currentRoute == item.route,
                 onClick = {
                     if (currentRoute != item.route) {
-                        navController.navigate(item.route)
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 },
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = item.title
+                        contentDescription = stringResource(item.title)
                     )
                 },
                 label = {
-                    Text(item.title)
+                    Text(stringResource(item.title))
                 }
             )
         }

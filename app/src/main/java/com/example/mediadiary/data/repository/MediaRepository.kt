@@ -1,19 +1,24 @@
 package com.example.mediadiary.data.repository
 
 import com.example.mediadiary.data.local.MediaDao
+import com.example.mediadiary.data.local.MediaStats
 import com.example.mediadiary.data.remote.KinopoiskApi
+import com.example.mediadiary.data.remote.model.ContentType
 import com.example.mediadiary.data.remote.model.KinopoiskSearchDetailedResponse
 import com.example.mediadiary.data.remote.model.KinopoiskSearchResponse
 import com.example.mediadiary.data.remote.model.MediaItem
-import com.example.mediadiary.data.remote.model.MediaStats
+import com.example.mediadiary.data.remote.model.MediaItemMapper
+import com.example.mediadiary.data.remote.model.MovieStatus
 import com.example.mediadiary.data.remote.model.SearchResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class MediaRepository(
     private val kpApi: KinopoiskApi,
-    private val mediaDao: MediaDao
+    private val mediaDao: MediaDao,
+    private val mapper: MediaItemMapper = MediaItemMapper()
 ) {
     private var trendingMoviesCache: List<SearchResult>? = null
     private var trendingSeriesCache: List<SearchResult>? = null
@@ -22,69 +27,60 @@ class MediaRepository(
     private var trendingAnimatedSeriesCache: List<SearchResult>? = null
 
 
-    suspend fun search(query: String): KinopoiskSearchResponse {
+    suspend fun search(query: String): KinopoiskSearchResponse = withContext(Dispatchers.IO) {
         val response = kpApi.multiSearch(query = query)
         val filtered = response.docs.filter { !it.poster?.url.isNullOrBlank() }
-        return response.copy(docs = filtered)
+        response.copy(docs = filtered)
     }
 
-    suspend fun updateMediaItem(newItem: MediaItem) {
-        mediaDao.update(newItem)
-    }
-
-    suspend fun getTrendingMovies(): List<SearchResult> {
+    suspend fun getTrendingMovies(): List<SearchResult> = withContext(Dispatchers.IO) {
         if (trendingMoviesCache != null) {
-            return trendingMoviesCache!!
+            return@withContext trendingMoviesCache!!
         }
         val moviesResponse = kpApi.getTrendingMovies().docs
             .filter { !it.poster?.url.isNullOrBlank() }
-            .shuffled()
         trendingMoviesCache = moviesResponse
-        return moviesResponse
+        moviesResponse
     }
 
-    suspend fun getTrendingSeries(): List<SearchResult> {
+    suspend fun getTrendingSeries(): List<SearchResult> = withContext(Dispatchers.IO) {
         if (trendingSeriesCache != null) {
-            return trendingSeriesCache!!
+            return@withContext trendingSeriesCache!!
         }
         val seriesResponse = kpApi.getTrendingSeries().docs
             .filter { !it.poster?.url.isNullOrBlank() }
-            .shuffled()
         trendingSeriesCache = seriesResponse
-        return seriesResponse
+        seriesResponse
     }
 
-    suspend fun getTrendingAnime(): List<SearchResult> {
+    suspend fun getTrendingAnime(): List<SearchResult> = withContext(Dispatchers.IO) {
         if (trendingAnimeCache != null) {
-            return trendingAnimeCache!!
+            return@withContext trendingAnimeCache!!
         }
         val animeResponse = kpApi.getTrendingAnime().docs
             .filter { !it.poster?.url.isNullOrBlank() }
-            .shuffled()
         trendingAnimeCache = animeResponse
-        return animeResponse
+        animeResponse
     }
 
-    suspend fun getTrendingCartoons(): List<SearchResult> {
+    suspend fun getTrendingCartoons(): List<SearchResult> = withContext(Dispatchers.IO) {
         if (trendingCartoonsCache != null) {
-            return trendingCartoonsCache!!
+            return@withContext trendingCartoonsCache!!
         }
         val cartoonResponse = kpApi.getTrendingCartoons().docs
             .filter { !it.poster?.url.isNullOrBlank() }
-            .shuffled()
         trendingCartoonsCache = cartoonResponse
-        return cartoonResponse
+        cartoonResponse
     }
 
-    suspend fun getTrendingAnimatedSeries(): List<SearchResult> {
+    suspend fun getTrendingAnimatedSeries(): List<SearchResult> = withContext(Dispatchers.IO) {
         if (trendingAnimatedSeriesCache != null) {
-            return trendingAnimatedSeriesCache!!
+            return@withContext trendingAnimatedSeriesCache!!
         }
         val animatedSeriesResponse = kpApi.getTrendingAnimatedSeries().docs
             .filter { !it.poster?.url.isNullOrBlank() }
-            .shuffled()
         trendingAnimatedSeriesCache = animatedSeriesResponse
-        return animatedSeriesResponse
+        animatedSeriesResponse
     }
 
     suspend fun getItemById(id: Int): KinopoiskSearchDetailedResponse {
@@ -94,59 +90,63 @@ class MediaRepository(
 
     suspend fun addToWishList(item: KinopoiskSearchDetailedResponse): Boolean {
         return withContext(Dispatchers.IO) {
-            val check = mediaDao.findById(item.id)
-            if (check == null) {
-                val newItem = MediaItem.onAddToWishList(item)
-                mediaDao.insert(newItem)
-                true
-            } else {
-                false
-            }
+            val newItem = mapper.toWishListItem(item)
+            val response = mediaDao.insertIgnore(newItem)
+            response != -1L
         }
     }
 
-    suspend fun getOrCreateMediaItem(id: Int): MediaItem {
+    suspend fun getMediaItem(id: Int): MediaItem {
         return withContext(Dispatchers.IO) {
-            val existing = mediaDao.findById(id)
-            if (existing != null) {
-                return@withContext existing
-            }
+            mediaDao.findById(id)?.let { return@withContext it }
 
             val details = kpApi.getById(id = id)
-            val newItem = MediaItem.fromDetailedSearchResult(details)
-            mediaDao.insert(newItem)
+            val newItem = mapper.fromDetailedSearchResult(details)
             newItem
         }
     }
 
     suspend fun createOrUpdateItem(item: MediaItem) {
         return withContext(Dispatchers.IO) {
-            val check = mediaDao.findById(item.id)
-            if (check == null) {
-                mediaDao.insert(item)
-            } else {
-                mediaDao.update(item)
+            mediaDao.insert(item)
+        }
+    }
+
+
+    fun getCollectionByStatus(status: MovieStatus): Flow<List<MediaItem>> {
+        return mediaDao.getItemsByStatus(status)
+    }
+
+
+    fun getTypesCount(): Flow<Map<ContentType, Int>> =
+        mediaDao.getTypes().map { list ->
+            list.associate { typeCount ->
+                val contentType = ContentType.fromName(typeCount.type)
+                    ?: ContentType.fromApiValue(typeCount.type)
+                contentType to typeCount.count
             }
         }
-    }
 
-    suspend fun deleteMediaItem(item: MediaItem){
-        withContext(Dispatchers.IO){
-            mediaDao.delete(item)
+
+    fun getTopGenres(limit: Int = 10): Flow<List<String>> {
+        return mediaDao.getAllItems().map { items ->
+            items.asSequence()
+                .flatMap { it.genres?.asSequence() ?: emptySequence() }
+                .filter { it.isNotBlank() }
+                .groupingBy { it }
+                .eachCount()
+                .toList()
+                .sortedByDescending { it.second }
+                .map { it.first }
+                .take(limit)
         }
     }
 
+    fun getCollectionStats(): Flow<MediaStats> = mediaDao.getCollectionStats()
 
-    fun getCollection(): Flow<List<MediaItem>> = mediaDao.getAllItems()
-
-    suspend fun getMediaStats(): MediaStats {
+    suspend fun deleteItemsByIds(ids: List<Int>) {
         return withContext(Dispatchers.IO) {
-            val total = mediaDao.getTotalCount()
-            val watched = mediaDao.getWatchedCount()
-            val watching = mediaDao.getWatchingCount()
-            val wantToWatch = mediaDao.getWantToWatchCount()
-            MediaStats(total, watched, watching, wantToWatch)
-
+            mediaDao.deleteByIds(ids)
         }
     }
 

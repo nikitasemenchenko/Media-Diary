@@ -2,71 +2,77 @@ package com.example.mediadiary.ui.details
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mediadiary.data.AppConstants.loading_error
 import com.example.mediadiary.ui.AppViewModelProvider
 
 @Composable
 fun MediaDetailsWrapper(
     vm: MediaDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    mediaId: Int, onBack: () -> Unit
+    mediaId: Int,
+    onBack: () -> Unit
 ) {
-    val mediaItem by vm.uiState.collectAsState()
-    var error by remember { mutableStateOf<String?>(null) }
+    val uiState by vm.uiState.collectAsState()
+
     LaunchedEffect(mediaId) {
-        try {
-            vm.loadMediaItem(mediaId)
-        } catch (e: Exception) {
-            error = loading_error
-        }
+        vm.loadMediaItem(mediaId)
     }
-    error?.let { ErrorMessage(it) }
-    if (mediaItem != null) {
-        MediaDetailScreen(
-            item = mediaItem!!,
-            onBack = onBack,
-            onStatusClick = { newStatus ->
-                vm.updateStatus(newStatus)
-                vm.createOrUpdateMediaItem()
-            },
-            onRatingChange = { newRating ->
-                vm.updateRating(newRating)
-                vm.createOrUpdateMediaItem()
-            },
-            onDateChange = { date ->
-                vm.updateDate(date)
-                vm.createOrUpdateMediaItem()
-            },
-            onNoteChange = { note ->
-                vm.updateNote(note)
-                vm.createOrUpdateMediaItem()
-            }
-        )
+
+    when (uiState) {
+
+        is MediaDetailUiState.Loading -> {
+            LoadingScreen()
+        }
+
+        is MediaDetailUiState.Error -> {
+            ErrorScreen((uiState as MediaDetailUiState.Error).message)
+        }
+
+        is MediaDetailUiState.Success -> {
+            val item = (uiState as MediaDetailUiState.Success).item
+
+            MediaDetailScreen(
+                item = item,
+                onBack = onBack,
+                onStatusClick = vm::updateStatus,
+                onRatingChange = vm::updateRating,
+                onDateChange = vm::updateDate,
+                onNoteChange = vm::updateNote
+            )
+        }
     }
 }
 
 @Composable
-fun ErrorMessage(message: String) {
+fun ErrorScreen(message: Int) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = message,
+            text = stringResource(message),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@Composable
+fun LoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
     }
 }

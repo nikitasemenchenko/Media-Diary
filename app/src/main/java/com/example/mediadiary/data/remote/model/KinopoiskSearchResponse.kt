@@ -1,6 +1,6 @@
 package com.example.mediadiary.data.remote.model
 
-import com.example.mediadiary.data.roundToOneSign
+import AppConstants
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -20,41 +20,24 @@ data class SearchResult(
     val genres: List<KinopoiskGenres> = emptyList(),
     var rating: KinopoiskRating?
 ) {
-    fun getItemTitle(): String {
-        return name ?: alternativeName ?: "Без названия"
+    fun getItemTitle(): String? {
+        return name ?: alternativeName
     }
 
-    fun getItemYear(): String {
-        return year?.toString() ?: "Неизвестно"
+    fun getItemGenres(): List<String> {
+        return genres.map { it.name }.take(AppConstants.Limits.GENRES_LIMIT)
     }
 
-    fun getItemPoster(): String {
-        return poster?.url ?: ""
+    fun getItemType(): ContentType {
+        return ContentType.fromApiValue(type)
     }
 
-    fun getItemGenres(): String {
-        val res = mutableListOf<String>()
-        for (i in genres) {
-            res.add(i.name)
-        }
-        return res.joinToString(", ")
-    }
-
-    fun getItemType(): String {
-        ""
-        return when (type) {
-            "movie" -> "Фильм"
-            "tv-series" -> "Сериал"
-            "cartoon" -> "Мультфильм"
-            "anime" -> "Аниме"
-            else -> "Мультсериал"
-        }
-    }
-
-    fun getItemRating(): Double {
-        val kp = rating?.kp ?: 0.0
-        val imdb = rating?.imdb ?: 0.0
-        return maxOf(kp, imdb).roundToOneSign()
+    fun getItemRating(): Double? {
+        val kp = rating?.kp
+        val imdb = rating?.imdb
+        val availableRatings = listOfNotNull(kp, imdb)
+        return availableRatings
+            .maxOrNull()
     }
 }
 
@@ -75,74 +58,52 @@ data class KinopoiskSearchDetailedResponse(
     val ageRating: Int?,
     val persons: List<KinopoiskPerson>?
 ) {
-    fun getItemTitle(): String {
-        return name ?: alternativeName ?: "Без названия"
+    fun getItemTitle(): String? {
+        return name ?: alternativeName
+    }
+    fun getItemGenres(): List<String> {
+        return genres.map { it.name }.take(AppConstants.Limits.GENRES_LIMIT)
     }
 
-    fun getItemYear(): String {
-        return year?.toString() ?: "-"
+
+    fun getItemRating(): Double? {
+        val kp = rating?.kp
+        val imdb = rating?.imdb
+        val availableRatings = listOfNotNull(kp, imdb)
+        return availableRatings
+            .maxOrNull()
     }
 
-    fun getItemPoster(): String {
-        return poster?.url ?: ""
+    fun getAge(): String? {
+        return ageRating?.let { "$it+" }
     }
 
-    fun getItemGenres(): String {
-        val res = mutableListOf<String>()
-        for (i in genres) {
-            res.add(i.name)
-        }
-        return res.take(3).joinToString(", ")
+    fun getCountriesList(): String? {
+        return countries?.joinToString(", ") { it.name }
     }
 
-    fun getItemRating(): Double {
-        val kp = rating?.kp ?: 0.0
-        val imdb = rating?.imdb ?: 0.0
-        return maxOf(kp, imdb).roundToOneSign()
-
+    fun getItemType(): ContentType {
+        return ContentType.fromApiValue(type)
     }
 
-    fun getAge(): String {
-        return if (ageRating != null) "$ageRating+" else "-"
+    fun getDuration(): String? {
+        return movieLength?.toString()
+            ?: seriesLength?.toString()
     }
 
-    fun getCountriesList(): String {
-        if (countries == null) return "-"
-        val countriesList = mutableListOf<String>()
-        for (x in countries) countriesList.add(x.name)
-        return countriesList.joinToString(", ")
-    }
-
-    fun getItemType(): String {
-        return when (type) {
-            "movie" -> "Фильм"
-            "tv-series" -> "Сериал"
-            "cartoon" -> "Мультфильм"
-            "anime" -> "Аниме"
-            else -> "Мультсериал"
-        }
-    }
-
-    fun getItemDescription(): String {
-        return description ?: "-"
-    }
-
-    fun getDuration(): String {
-        return movieLength?.toString() ?: seriesLength?.toString() ?: "-"
-    }
-
-    fun getDirectorName(): String {
+    fun getDirectorName(): String? {
         val director = persons?.firstOrNull {
-            it.enProfession == "director"
+            it.enProfession == AppConstants.ApiConstants.DIRECTOR
         }
-        return director?.name ?: "-"
+        return director?.name
     }
 
-    fun getActorsNames(): String {
+    fun getActorsNames(): String? {
         return persons
-            ?.filter { it.enProfession == "actor" }
-            ?.take(6)?.joinToString(", ") { it.name ?: "" }
-            ?: "-"
+            ?.filter { it.enProfession == AppConstants.ApiConstants.ACTOR }
+            ?.take(AppConstants.Limits.ACTORS_LIMIT)
+            ?.joinToString(", ") { it.name ?: "" }
+            .let { if (it.isNullOrEmpty()) null else it }
     }
 }
 
@@ -169,6 +130,6 @@ data class KinopoiskCountry(
 
 @Serializable
 data class KinopoiskPerson(
-    val name: String? = "Неизвестно",
+    val name: String?,
     val enProfession: String
 )

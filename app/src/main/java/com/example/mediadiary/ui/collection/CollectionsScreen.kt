@@ -28,20 +28,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,16 +49,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.mediadiary.R
 import com.example.mediadiary.data.remote.model.MediaItem
 import com.example.mediadiary.data.remote.model.MovieStatus
 import com.example.mediadiary.ui.AppViewModelProvider
-import com.example.mediadiary.ui.navigation.NavigationDestination
-
-
-object CollectionDestination : NavigationDestination {
-    override val route = "collection"
-}
+import roundToOneSign
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,14 +63,16 @@ fun CollectionsScreen(
     vm: CollectionViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onCollectionItemClick: (Int) -> Unit
 ) {
-    val items by vm.mediaItems.collectAsState()
-    val selectedTab by vm.selectedTab.collectAsState()
-    val selectedItems by vm.selectedItems.collectAsState()
+    val uiState by vm.uiState.collectAsState()
     Scaffold(
         topBar = {
-            if (selectedItems.isNotEmpty()) {
+            if (uiState.selectedItems.isNotEmpty()) {
                 TopAppBar(
-                    title = { Text("Выбрано: ${selectedItems.size}") },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.selected_items) + ": ${uiState.selectedItems.size}"
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { vm.clearSelection() }) {
                             Icon(
@@ -83,7 +82,7 @@ fun CollectionsScreen(
                         }
                     },
                     actions = {
-                        if (selectedItems.isNotEmpty()) {
+                        if (uiState.selectedItems.isNotEmpty()) {
                             IconButton(onClick = { vm.deleteSelected() }) {
                                 Icon(
                                     Icons.Default.Delete,
@@ -99,16 +98,16 @@ fun CollectionsScreen(
         Column(
             modifier = Modifier.padding(contentPadding)
         ) {
-            TabRow(
-                selectedTabIndex = MovieStatus.entries.indexOf(selectedTab)
+            SecondaryTabRow(
+                selectedTabIndex = MovieStatus.entries.indexOf(uiState.selectedTab)
             ) {
                 MovieStatus.entries.forEach { status ->
                     Tab(
-                        selected = status == selectedTab,
-                        onClick = { vm.selectTab(status) },
+                        selected = status == uiState.selectedTab,
+                        onClick = { vm.changeTab(status) },
                         text = {
                             Text(
-                                text = status.statusName,
+                                text = stringResource(status.resId),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
@@ -117,7 +116,7 @@ fun CollectionsScreen(
                     )
                 }
             }
-            if (items.isEmpty()) {
+            if (uiState.items.isEmpty()) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -135,11 +134,11 @@ fun CollectionsScreen(
                         .padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(items) { item ->
+                    items(uiState.items, key = { it.id }) { item ->
                         CollectionItemCard(
                             item = item,
-                            isSelected = selectedItems.contains(item.id),
-                            isSelectionMode = selectedItems.isNotEmpty(),
+                            isSelected = uiState.selectedItems.contains(item.id),
+                            isSelectionMode = uiState.selectedItems.isNotEmpty(),
                             onItemClick = onCollectionItemClick,
                             onToggleSelection = { vm.toggleSelection(it) },
                             onLongClick = { vm.toggleSelection(it) }
@@ -185,7 +184,7 @@ fun CollectionItemCard(
             defaultElevation = 6.dp,
             pressedElevation = 2.dp
         ),
-        border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
     ) {
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -228,34 +227,35 @@ fun CollectionItemCard(
 
 @Composable
 fun PosterSection(item: MediaItem) {
+    val context = LocalContext.current
+    val request = remember(item.poster) {
+        ImageRequest.Builder(context)
+            .data(item.poster)
+            .placeholder(R.drawable.loading_img)
+            .error(R.drawable.ic_connection_error)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .allowHardware(true)
+            .crossfade(true)
+            .build()
+    }
+
     Box(
         modifier = Modifier
-            .size(width = 96.dp, height = 136.dp)
+            .size(width = 100.dp, height = 140.dp)
             .clip(MaterialTheme.shapes.medium)
     ) {
         AsyncImage(
-            model = item.poster,
+            model = request,
             contentDescription = item.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize()
         )
 
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            Color.Transparent,
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.65f)
-                        ),
-                        startY = 60f
-                    )
-                )
-        )
-
+        val ratingText =
+            item.rating?.roundToOneSign()?.toString() ?: stringResource(R.string.unknown_value)
         Text(
-            text = item.rating.toString(),
+            text = ratingText,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -276,7 +276,7 @@ private fun InfoSection(item: MediaItem) {
             .padding(end = 8.dp)
     ) {
         Text(
-            text = item.title,
+            text = item.title ?: stringResource(R.string.unknown_title),
             style = MaterialTheme.typography.titleMedium,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
@@ -285,20 +285,22 @@ private fun InfoSection(item: MediaItem) {
         Spacer(Modifier.height(6.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Surface(
-                shape = MaterialTheme.shapes.large,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
-            ) {
-                Text(
-                    text = item.type,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
-                )
+            if (item.type != null) {
+                Surface(
+                    shape = MaterialTheme.shapes.large,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                ) {
+                    Text(
+                        text = stringResource(item.type.resId),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
+                    )
+                }
             }
 
             Text(
-                text = item.year,
+                text = item.year?.toString() ?: stringResource(R.string.unknown_value),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 6.dp)
@@ -308,7 +310,7 @@ private fun InfoSection(item: MediaItem) {
         Spacer(Modifier.height(8.dp))
 
         Text(
-            text = item.genres,
+            text = item.genres?.joinToString(", ") ?: "",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 2,
@@ -316,4 +318,3 @@ private fun InfoSection(item: MediaItem) {
         )
     }
 }
-

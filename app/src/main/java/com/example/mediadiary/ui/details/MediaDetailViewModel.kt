@@ -2,6 +2,7 @@ package com.example.mediadiary.ui.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mediadiary.R
 import com.example.mediadiary.data.remote.model.MediaItem
 import com.example.mediadiary.data.remote.model.MovieStatus
 import com.example.mediadiary.data.repository.MediaRepository
@@ -10,33 +11,49 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MediaDetailViewModel(private val repository: MediaRepository) : ViewModel() {
-    val _uiState = MutableStateFlow<MediaItem?>(null)
+    private val _uiState = MutableStateFlow<MediaDetailUiState>(MediaDetailUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
-    suspend fun loadMediaItem(id: Int) {
-        _uiState.value = repository.getOrCreateMediaItem(id)
+    fun loadMediaItem(id: Int) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = MediaDetailUiState.Loading
+
+                val item = repository.getMediaItem(id)
+
+                _uiState.value = MediaDetailUiState.Success(item)
+
+            } catch (e: Exception) {
+                _uiState.value = MediaDetailUiState.Error(R.string.error_loading)
+            }
+        }
     }
 
     fun updateStatus(newStatus: MovieStatus) {
-        _uiState.value = _uiState.value?.copy(watchStatus = newStatus)
+        updateItem { it.copy(watchStatus = newStatus) }
     }
 
     fun updateRating(newRating: Int?) {
-        _uiState.value = _uiState.value?.copy(userRating = newRating)
+        updateItem { it.copy(userRating = newRating) }
     }
 
     fun updateNote(note: String?) {
-        _uiState.value = _uiState.value?.copy(userNote = note)
+        updateItem { it.copy(userNote = note) }
     }
 
     fun updateDate(date: Long?) {
-        _uiState.value = _uiState.value?.copy(watchDate = date)
+        updateItem { it.copy(watchDate = date) }
     }
 
-    fun createOrUpdateMediaItem() {
-        val item = _uiState.value ?: return
+    private fun updateItem(transform: (MediaItem) -> MediaItem) {
+        val current = _uiState.value
+        if (current !is MediaDetailUiState.Success) return
+
+        val updated = transform(current.item)
+        _uiState.value = MediaDetailUiState.Success(updated)
+
         viewModelScope.launch {
-            repository.createOrUpdateItem(item)
+            repository.createOrUpdateItem(updated)
         }
     }
 

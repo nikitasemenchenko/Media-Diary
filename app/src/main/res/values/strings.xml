@@ -2,10 +2,14 @@
     <string name="app_name">Media Diary</string>
     <string name="search_label">Что хотите посмотреть?</string>
     <string name="movie">Фильм</string>
+    <string name="movies">Фильмы</string>
     <string name="series">Сериал</string>
-    <string name="anime">Аниме</string>
+    <string name="series2">Сериалы</string>
     <string name="cartoon">Мультфильм</string>
+    <string name="cartoons">Мультфильмы</string>
+    <string name="anime">Аниме</string>
     <string name="animated_series">Мультсериал</string>
+    <string name="animated_series2">Мультсериалы</string>
     <string name="rating">Рейтинг: </string>
     <string name="country">Страна: </string>
     <string name="year">Год выхода: </string>
@@ -16,8 +20,6 @@
     <string name="description">Описание: </string>
     <string name="duration">Длительность (мин.): </string>
     <string name="empty_collection">Здесь ничего нет.</string>
-    <string name="already_in_collection">Уже в коллекции</string>
-    <string name="successfully_added">Добавлено в "Хочу посмотреть"</string>
     <string name="back">Назад</string>
     <string name="user_rating">Ваша оценка:</string>
     <string name="select_date">Дата просмотра:</string>
@@ -27,6 +29,7 @@
     <string name="about_movie">О фильме:</string>
     <string name="about_series">О сериале:</string>
     <string name="add">Добавить</string>
+    <string name="retry">Попробовать снова</string>
     <string name="trendingMovies">Популярные фильмы</string>
     <string name="trendingSeries">Популярные сериалы</string>
     <string name="trendingAnime">Популярное аниме</string>
@@ -40,7 +43,29 @@
     <string name="show_more">Узнать больше</string>
     <string name="show_less">Скрыть</string>
     <string name="delete">Удалить</string>
-    <string name="cancel">Отменить</string>
+    <string name="clear_query">Очистить поиск</string>
+    <string name="cancel">Отмена</string>
+    <string name="total">Всего</string>
+    <string name="raspredelenie">Что я смотрю чаще всего</string>
+    <string name="favourite_genres">Топ любимых жанров</string>
+    <string name="no_genres">Пока нет любимых жанров. </string>
+    <string name="no_data">Нет данных для диаграммы.</string>
+    <string name="no_date">Дата не выбрана</string>
+    <string name="ok">ОК</string>
+    <string name="search_screen">Поиск</string>
+    <string name="collection_screen">Коллекция</string>
+    <string name="statistics_screen">Статистика</string>
+    <string name="selected_items">Выбрано</string>
+    <string name="already_in_collection">Уже в коллекции</string>
+    <string name="successfully_added">Добавлено в "Хочу посмотреть"</string>
+    <string name="error_adding">Ошибка добавления</string>
+    <string name="error_loading">Ошибка загрузки</string>
+    <string name="error_internet">Ошибка загрузки, проверьте интернет</string>
 
+    <string name="unknown_title">Без названия</string>
+    <string name="unknown_year">Неизвестно</string>
+    <string name="unknown_value">-</string>
+    <string name="no_results">Ничего не найдено</string>
+    <string name="try_another_query">Попробуйте еще раз</string>
 
 </resources>
