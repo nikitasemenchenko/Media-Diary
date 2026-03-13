@@ -17,7 +17,7 @@
 
 ## Installation
 
-[👉 **Download the APK**](https://drive.google.com/file/d/1AWXCY3RFFfCwKSbs5QQTIjLD_PCuWfwB/view?usp=sharing)  
+[👉 **Download the APK**](https://drive.google.com/file/d/1mmZ7CB6XpKzm8E3wxEfQTAlgB12TbfWr/view?usp=sharing)  
 
 **Or:**
 
