@@ -37,10 +37,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import ru.magnum.mediadiary.R
 import ru.magnum.mediadiary.data.remote.model.ContentType
-import ru.magnum.mediadiary.ui.AppViewModelProvider
 import ru.magnum.mediadiary.ui.theme.pieChartColor1
 import ru.magnum.mediadiary.ui.theme.pieChartColor2
 import ru.magnum.mediadiary.ui.theme.pieChartColor3
@@ -50,7 +49,7 @@ import kotlin.math.min
 
 @Composable
 fun StatisticsScreen(
-    vm: StatisticsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    vm: StatisticsViewModel = hiltViewModel()
 ) {
     val uiState by vm.uiState.collectAsState()
 

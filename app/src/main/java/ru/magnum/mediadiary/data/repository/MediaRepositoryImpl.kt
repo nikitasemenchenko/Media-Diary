@@ -14,12 +14,14 @@ import ru.magnum.mediadiary.data.remote.model.MediaItem
 import ru.magnum.mediadiary.data.remote.model.MediaItemMapper
 import ru.magnum.mediadiary.data.remote.model.MovieStatus
 import ru.magnum.mediadiary.data.remote.model.SearchResult
+import ru.magnum.mediadiary.domain.repository.MediaRepository
+import javax.inject.Inject
 
-class MediaRepository(
+class MediaRepositoryImpl @Inject constructor(
     private val kpApi: KinopoiskApi,
     private val mediaDao: MediaDao,
     private val mapper: MediaItemMapper = MediaItemMapper()
-) {
+): MediaRepository {
     private var trendingMoviesCache: List<SearchResult>? = null
     private var trendingSeriesCache: List<SearchResult>? = null
     private var trendingAnimeCache: List<SearchResult>? = null
@@ -27,13 +29,13 @@ class MediaRepository(
     private var trendingAnimatedSeriesCache: List<SearchResult>? = null
 
 
-    suspend fun search(query: String): KinopoiskSearchResponse = withContext(Dispatchers.IO) {
+    override suspend fun search(query: String): KinopoiskSearchResponse = withContext(Dispatchers.IO) {
         val response = kpApi.multiSearch(query = query)
         val filtered = response.docs.filter { !it.poster?.url.isNullOrBlank() }
         response.copy(docs = filtered)
     }
 
-    suspend fun getTrendingMovies(): List<SearchResult> = withContext(Dispatchers.IO) {
+    override suspend fun getTrendingMovies(): List<SearchResult> = withContext(Dispatchers.IO) {
         if (trendingMoviesCache != null) {
             return@withContext trendingMoviesCache!!
         }
@@ -43,7 +45,7 @@ class MediaRepository(
         moviesResponse
     }
 
-    suspend fun getTrendingSeries(): List<SearchResult> = withContext(Dispatchers.IO) {
+    override suspend fun getTrendingSeries(): List<SearchResult> = withContext(Dispatchers.IO) {
         if (trendingSeriesCache != null) {
             return@withContext trendingSeriesCache!!
         }
@@ -53,7 +55,7 @@ class MediaRepository(
         seriesResponse
     }
 
-    suspend fun getTrendingAnime(): List<SearchResult> = withContext(Dispatchers.IO) {
+    override suspend fun getTrendingAnime(): List<SearchResult> = withContext(Dispatchers.IO) {
         if (trendingAnimeCache != null) {
             return@withContext trendingAnimeCache!!
         }
@@ -63,7 +65,7 @@ class MediaRepository(
         animeResponse
     }
 
-    suspend fun getTrendingCartoons(): List<SearchResult> = withContext(Dispatchers.IO) {
+    override suspend fun getTrendingCartoons(): List<SearchResult> = withContext(Dispatchers.IO) {
         if (trendingCartoonsCache != null) {
             return@withContext trendingCartoonsCache!!
         }
@@ -73,7 +75,7 @@ class MediaRepository(
         cartoonResponse
     }
 
-    suspend fun getTrendingAnimatedSeries(): List<SearchResult> = withContext(Dispatchers.IO) {
+    override suspend fun getTrendingAnimatedSeries(): List<SearchResult> = withContext(Dispatchers.IO) {
         if (trendingAnimatedSeriesCache != null) {
             return@withContext trendingAnimatedSeriesCache!!
         }
@@ -83,18 +85,18 @@ class MediaRepository(
         animatedSeriesResponse
     }
 
-    suspend fun getItemById(id: Int): KinopoiskSearchDetailedResponse {
+    override suspend fun getItemById(id: Int): KinopoiskSearchDetailedResponse {
         return kpApi.getById(id = id)
     }
 
-    suspend fun deleteMediaItem(item: MediaItem){
+    override suspend fun deleteMediaItem(item: MediaItem){
         return withContext(Dispatchers.IO){
             mediaDao.delete(item)
         }
     }
 
 
-    suspend fun addToWishList(item: KinopoiskSearchDetailedResponse): Boolean {
+    override suspend fun addToWishList(item: KinopoiskSearchDetailedResponse): Boolean {
         return withContext(Dispatchers.IO) {
             val newItem = mapper.toWishListItem(item)
             val response = mediaDao.insertIgnore(newItem)
@@ -102,7 +104,7 @@ class MediaRepository(
         }
     }
 
-    suspend fun getMediaItem(id: Int): MediaItem {
+    override suspend fun getMediaItem(id: Int): MediaItem {
         return withContext(Dispatchers.IO) {
             mediaDao.findById(id)?.let { return@withContext it }
 
@@ -112,19 +114,19 @@ class MediaRepository(
         }
     }
 
-    suspend fun createOrUpdateItem(item: MediaItem) {
+    override suspend fun createOrUpdateItem(item: MediaItem) {
         return withContext(Dispatchers.IO) {
             mediaDao.insert(item)
         }
     }
 
 
-    fun getCollectionByStatus(status: MovieStatus): Flow<List<MediaItem>> {
+    override fun getCollectionByStatus(status: MovieStatus): Flow<List<MediaItem>> {
         return mediaDao.getItemsByStatus(status)
     }
 
 
-    fun getTypesCount(): Flow<Map<ContentType, Int>> =
+    override fun getTypesCount(): Flow<Map<ContentType, Int>> =
         mediaDao.getTypes().map { list ->
             list.associate { typeCount ->
                 val contentType = ContentType.fromName(typeCount.type)
@@ -133,7 +135,7 @@ class MediaRepository(
         }
 
 
-    fun getTopGenres(limit: Int = 10): Flow<List<String>> {
+    override fun getTopGenres(limit: Int): Flow<List<String>> {
         return mediaDao.getAllItems().map { items ->
             items.asSequence()
                 .flatMap { it.genres?.asSequence() ?: emptySequence() }
@@ -147,9 +149,9 @@ class MediaRepository(
         }
     }
 
-    fun getCollectionStats(): Flow<MediaStats> = mediaDao.getCollectionStats()
+    override fun getCollectionStats(): Flow<MediaStats> = mediaDao.getCollectionStats()
 
-    suspend fun deleteItemsByIds(ids: List<Int>) {
+    override suspend fun deleteItemsByIds(ids: List<Int>) {
         return withContext(Dispatchers.IO) {
             mediaDao.deleteByIds(ids)
         }

@@ -1,6 +1,8 @@
 package ru.magnum.mediadiary.data.remote.model
 
-class MediaItemMapper {
+import javax.inject.Inject
+
+class MediaItemMapper @Inject constructor() {
 
     fun fromDetailedSearchResult(item: KinopoiskSearchDetailedResponse): MediaItem {
         return MediaItem(
