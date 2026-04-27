@@ -29,7 +29,7 @@
     The project works with Kinopoisk API for media data. You must get your own API key.
 
 3.  **Add the Key to `local.properties`:**
-    In the root directory of the project, create or edit the `local.properties` file and add the following line:
+    In the root directory of the project, edit the `local.properties` file and add the following line:
     ```properties
     KP_API_KEY="YOUR_KEY"
     ```

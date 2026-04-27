@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,8 +8,16 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { load(it) }
+    }
+}
 
-val kpApiKey: String? = project.findProperty("KP_API_KEY") as String?
+val kpApiKey: String = localProperties.getProperty("KP_API_KEY")
+    ?: System.getenv("KP_API_KEY")
+    ?: ""
 
 android {
     namespace = "ru.magnum.mediadiary"
@@ -19,7 +29,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "KP_API_KEY", "\"${kpApiKey ?: ""}\"")
+        buildConfigField("String", "KP_API_KEY", "\"$kpApiKey\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
