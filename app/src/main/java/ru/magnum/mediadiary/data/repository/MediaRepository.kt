@@ -14,8 +14,9 @@ import ru.magnum.mediadiary.data.remote.model.MediaItem
 import ru.magnum.mediadiary.data.remote.model.MediaItemMapper
 import ru.magnum.mediadiary.data.remote.model.MovieStatus
 import ru.magnum.mediadiary.data.remote.model.SearchResult
+import javax.inject.Inject
 
-class MediaRepository(
+class MediaRepository @Inject constructor(
     private val kpApi: KinopoiskApi,
     private val mediaDao: MediaDao,
     private val mapper: MediaItemMapper = MediaItemMapper()

@@ -2,8 +2,7 @@ package ru.magnum.mediadiary.ui.collection
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ru.magnum.mediadiary.data.remote.model.MovieStatus
-import ru.magnum.mediadiary.data.repository.MediaRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,9 +11,13 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.magnum.mediadiary.data.remote.model.MovieStatus
+import ru.magnum.mediadiary.data.repository.MediaRepository
+import javax.inject.Inject
 
+@HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
-class CollectionViewModel(private val repository: MediaRepository) : ViewModel() {
+class CollectionViewModel @Inject constructor(private val repository: MediaRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CollectionUiState())
     val uiState = _uiState.asStateFlow()

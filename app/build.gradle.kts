@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 val localProperties = Properties().apply {
@@ -118,4 +119,7 @@ dependencies {
     implementation(libs.androidx.compose.icons.extended)
     implementation(libs.androidx.compose.runtime.saveable)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 }

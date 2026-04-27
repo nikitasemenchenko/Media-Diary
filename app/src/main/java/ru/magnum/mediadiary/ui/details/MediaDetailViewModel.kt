@@ -2,15 +2,18 @@ package ru.magnum.mediadiary.ui.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import ru.magnum.mediadiary.R
 import ru.magnum.mediadiary.data.remote.model.MediaItem
 import ru.magnum.mediadiary.data.remote.model.MovieStatus
 import ru.magnum.mediadiary.data.repository.MediaRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MediaDetailViewModel(private val repository: MediaRepository) : ViewModel() {
+@HiltViewModel
+class MediaDetailViewModel @Inject constructor(private val repository: MediaRepository) : ViewModel() {
     private val _uiState = MutableStateFlow<MediaDetailUiState>(MediaDetailUiState.Loading)
     val uiState = _uiState.asStateFlow()
 

@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
@@ -60,12 +61,11 @@ import coil.request.ImageRequest
 import roundToOneSign
 import ru.magnum.mediadiary.R
 import ru.magnum.mediadiary.data.remote.model.SearchResult
-import ru.magnum.mediadiary.ui.AppViewModelProvider
 
 
 @Composable
 fun SearchScreen(
-    vm: SearchViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    vm: SearchViewModel = hiltViewModel(),
     modifier: Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     onItemClick: (Int) -> Unit

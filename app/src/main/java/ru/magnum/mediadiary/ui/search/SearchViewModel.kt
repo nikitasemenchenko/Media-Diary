@@ -3,9 +3,7 @@ package ru.magnum.mediadiary.ui.search
 import AppConstants.SEARCH_DELAY
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ru.magnum.mediadiary.R
-import ru.magnum.mediadiary.data.remote.model.SearchResult
-import ru.magnum.mediadiary.data.repository.MediaRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -20,10 +18,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import ru.magnum.mediadiary.R
+import ru.magnum.mediadiary.data.remote.model.SearchResult
+import ru.magnum.mediadiary.data.repository.MediaRepository
+import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
+@HiltViewModel
 @OptIn(FlowPreview::class)
-class SearchViewModel(private val repository: MediaRepository) : ViewModel() {
+class SearchViewModel @Inject constructor(private val repository: MediaRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState = _uiState.asStateFlow()

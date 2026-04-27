@@ -47,20 +47,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import roundToOneSign
 import ru.magnum.mediadiary.R
 import ru.magnum.mediadiary.data.remote.model.MediaItem
 import ru.magnum.mediadiary.data.remote.model.MovieStatus
-import ru.magnum.mediadiary.ui.AppViewModelProvider
-import roundToOneSign
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionsScreen(
-    vm: CollectionViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    vm: CollectionViewModel = hiltViewModel(),
     onCollectionItemClick: (Int) -> Unit
 ) {
     val uiState by vm.uiState.collectAsState()

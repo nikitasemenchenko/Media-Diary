@@ -13,12 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.magnum.mediadiary.ui.AppViewModelProvider
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun MediaDetailsWrapper(
-    vm: MediaDetailViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    vm: MediaDetailViewModel = hiltViewModel(),
     mediaId: Int,
     onBack: () -> Unit
 ) {
