@@ -5,7 +5,11 @@ import androidx.room.TypeConverter
 class MovieStatusTypeConverter {
     @TypeConverter
     fun toMovieStatus(value: String?): MovieStatus? {
-        return value?.let { MovieStatus.valueOf(it) }
+        if (value.isNullOrBlank()) return null
+
+        return runCatching {
+            MovieStatus.valueOf(value)
+        }.getOrNull()
     }
 
     @TypeConverter
