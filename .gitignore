@@ -2,6 +2,9 @@
 misc.xml
 .gradle
 /local.properties
+keystore.properties
+*.jks
+*.keystore
 .DS_Store
 /build
 /captures
@@ -9,3 +12,6 @@ misc.xml
 .cxx
 local.properties
 .idea/
+*.apk
+*.aab
+app/release/
