@@ -1,5 +1,6 @@
 package ru.magnum.mediadiary.presentation.statistics
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +21,9 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.WatchLater
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.magnum.mediadiary.R
@@ -53,7 +57,31 @@ fun StatisticsScreen(
     vm: StatisticsViewModel = hiltViewModel()
 ) {
     val uiState by vm.uiState.collectAsState()
+    when {
+        uiState.isLoading -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CircularProgressIndicator()
+            }
+        }
 
+        uiState.errorMessage != null -> {
+            StatisticsErrorState(
+                message = uiState.errorMessage!!,
+                onRetry = vm::loadStatistics
+            )
+        }
+
+        else -> {
+            StatisticsContent(uiState)
+        }
+    }
+}
+
+@Composable
+fun StatisticsContent(uiState: StatisticsUiState) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -134,6 +162,33 @@ fun StatisticsScreen(
         }
         item {
             Spacer(modifier = Modifier.height(100.dp))
+        }
+    }
+}
+
+@Composable
+private fun StatisticsErrorState(
+    @StringRes message: Int,
+    onRetry: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(message),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.error,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = onRetry) {
+            Text(text = stringResource(R.string.retry))
         }
     }
 }

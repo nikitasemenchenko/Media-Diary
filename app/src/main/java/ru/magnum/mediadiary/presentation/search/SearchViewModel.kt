@@ -22,12 +22,15 @@ import ru.magnum.mediadiary.R
 import ru.magnum.mediadiary.domain.model.AddToCollectionResult
 import ru.magnum.mediadiary.domain.model.MediaPreview
 import ru.magnum.mediadiary.domain.repository.MediaRepository
+import ru.magnum.mediadiary.presentation.mappers.toMessageRes
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 @OptIn(FlowPreview::class)
-class SearchViewModel @Inject constructor(private val repository: MediaRepository) : ViewModel() {
+class SearchViewModel @Inject constructor(
+    private val repository: MediaRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState = _uiState.asStateFlow()
@@ -65,7 +68,7 @@ class SearchViewModel @Inject constructor(private val repository: MediaRepositor
     private suspend fun makeSearch(query: String) {
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-        try {
+        runCatching {
             val response = repository.search(query = query)
 
             _uiState.update {
@@ -74,17 +77,17 @@ class SearchViewModel @Inject constructor(private val repository: MediaRepositor
                 )
             }
             _searchResults.value = response
-        } catch (e: Exception) {
+        }.onFailure { e ->
             if (e is CancellationException) {
                 throw e
             }
+
             _uiState.update {
                 it.copy(
                     isLoading = false,
-                    errorMessage = R.string.error_loading)
+                    errorMessage = e.toMessageRes())
             }
             _searchResults.value = emptyList()
-            e.printStackTrace()
         }
     }
 
@@ -92,7 +95,7 @@ class SearchViewModel @Inject constructor(private val repository: MediaRepositor
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch(Dispatchers.IO) {
-            try {
+            runCatching {
                 supervisorScope {
                     val movies = async { repository.getTrendingMovies() }
                     val series = async { repository.getTrendingSeries() }
@@ -113,12 +116,13 @@ class SearchViewModel @Inject constructor(private val repository: MediaRepositor
                         )
                     }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            }.onFailure { e ->
+                if (e is CancellationException) throw e
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = R.string.error_internet
+                        errorMessage = e.toMessageRes()
                     )
                 }
             }
@@ -131,7 +135,7 @@ class SearchViewModel @Inject constructor(private val repository: MediaRepositor
 
     fun addItemToWishlist(item: MediaPreview) {
         viewModelScope.launch {
-            try {
+            runCatching {
                 when (repository.addToWishList(item.id)) {
                     AddToCollectionResult.ADDED -> {
                         _events.emit(R.string.successfully_added)
@@ -141,9 +145,9 @@ class SearchViewModel @Inject constructor(private val repository: MediaRepositor
                         _events.emit(R.string.already_in_collection)
                     }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _events.emit(R.string.error_adding)
+            }.onFailure { e ->
+                if (e is CancellationException) throw e
+                _events.emit(e.toMessageRes())
             }
         }
     }

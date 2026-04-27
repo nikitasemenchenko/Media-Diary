@@ -8,5 +8,5 @@ data class CollectionUiState(
     val selectedItems: Set<Int> = emptySet(),
     val items: List<MediaDetails> = emptyList(),
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val errorMessage: Int? = null
 )

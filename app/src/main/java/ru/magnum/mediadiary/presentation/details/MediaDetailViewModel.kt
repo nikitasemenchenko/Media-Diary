@@ -6,29 +6,32 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.magnum.mediadiary.R
 import ru.magnum.mediadiary.domain.model.MediaDetails
 import ru.magnum.mediadiary.domain.model.WatchStatus
 import ru.magnum.mediadiary.domain.repository.MediaRepository
+import ru.magnum.mediadiary.presentation.mappers.toMessageRes
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
-class MediaDetailViewModel @Inject constructor(private val repository: MediaRepository) : ViewModel() {
+class MediaDetailViewModel @Inject constructor(
+    private val repository: MediaRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow<MediaDetailUiState>(MediaDetailUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
     fun loadMediaItem(id: Int) {
         viewModelScope.launch {
-            try {
+            runCatching {
                 _uiState.value = MediaDetailUiState.Loading
 
                 val item = repository.getMediaDetails(id)
 
                 _uiState.value = MediaDetailUiState.Success(item)
 
-            } catch (e: Exception) {
-                _uiState.value = MediaDetailUiState.Error(R.string.error_loading)
-                e.printStackTrace()
+            }.onFailure { e ->
+                if (e is CancellationException) throw e
+                _uiState.value = MediaDetailUiState.Error(e.toMessageRes())
             }
         }
     }
@@ -41,8 +44,13 @@ class MediaDetailViewModel @Inject constructor(private val repository: MediaRepo
 
         if (currentItem.watchStatus == newStatus) {
             viewModelScope.launch {
-                repository.deleteMediaDetails(currentItem)
-                _uiState.value = MediaDetailUiState.Success(currentItem.copy(watchStatus = null))
+                runCatching {
+                    repository.deleteMediaDetails(currentItem)
+                    _uiState.value = MediaDetailUiState.Success(currentItem.copy(watchStatus = null))
+                }.onFailure { e ->
+                    if (e is CancellationException) throw e
+                    _uiState.value = MediaDetailUiState.Error(e.toMessageRes())
+                }
             }
         } else {
             updateItem {
@@ -70,7 +78,12 @@ class MediaDetailViewModel @Inject constructor(private val repository: MediaRepo
         _uiState.value = MediaDetailUiState.Success(updated)
 
         viewModelScope.launch {
-            repository.saveMediaDetails(updated)
+            runCatching {
+                repository.saveMediaDetails(updated)
+            }.onFailure { e ->
+                if (e is CancellationException) throw e
+                _uiState.value = MediaDetailUiState.Error(e.toMessageRes())
+            }
         }
     }
 

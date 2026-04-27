@@ -5,14 +5,18 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.magnum.mediadiary.domain.repository.MediaRepository
+import ru.magnum.mediadiary.presentation.mappers.toMessageRes
 import javax.inject.Inject
 
 @HiltViewModel
-class StatisticsViewModel @Inject constructor(private val repository: MediaRepository) : ViewModel() {
+class StatisticsViewModel @Inject constructor(
+    private val repository: MediaRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(StatisticsUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -20,7 +24,7 @@ class StatisticsViewModel @Inject constructor(private val repository: MediaRepos
         loadStatistics()
     }
 
-    private fun loadStatistics() {
+    fun loadStatistics() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
@@ -39,7 +43,15 @@ class StatisticsViewModel @Inject constructor(private val repository: MediaRepos
                     isLoading = false,
                     errorMessage = null
                 )
-            }.collect { newState ->
+            }
+                .catch { e ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = e.toMessageRes()
+                        )
+                    }
+                }.collect { newState ->
                 _uiState.value = newState
             }
         }

@@ -1,5 +1,6 @@
 package ru.magnum.mediadiary.presentation.collection
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -20,9 +21,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -116,36 +119,55 @@ fun CollectionsScreen(
                     )
                 }
             }
-            if (uiState.items.isEmpty()) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(contentPadding)
-                ) {
-                    Text(
-                        text = stringResource(R.string.empty_collection)
+            when {
+                uiState.isLoading -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                uiState.errorMessage != null -> {
+                    CollectionErrorState(
+                        message = uiState.errorMessage!!,
+                        onRetry = vm::loadItems
                     )
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.items, key = { it.id }) { item ->
-                        CollectionItemCard(
-                            item = item,
-                            isSelected = uiState.selectedItems.contains(item.id),
-                            isSelectionMode = uiState.selectedItems.isNotEmpty(),
-                            onItemClick = onCollectionItemClick,
-                            onToggleSelection = { vm.toggleDeletion(it) },
-                            onLongClick = { vm.toggleDeletion(it) }
+
+                uiState.items.isEmpty() -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.empty_collection)
                         )
                     }
-                    item {
-                        Spacer(modifier = Modifier.height(100.dp))
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(uiState.items, key = { it.id }) { item ->
+                            CollectionItemCard(
+                                item = item,
+                                isSelected = uiState.selectedItems.contains(item.id),
+                                isSelectionMode = uiState.selectedItems.isNotEmpty(),
+                                onItemClick = onCollectionItemClick,
+                                onToggleSelection = { vm.toggleDeletion(it) },
+                                onLongClick = { vm.toggleDeletion(it) }
+                            )
+                        }
+
+                        item {
+                            Spacer(modifier = Modifier.height(100.dp))
+                        }
                     }
                 }
             }
@@ -316,5 +338,32 @@ private fun InfoSection(item: MediaDetails) {
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+@Composable
+fun CollectionErrorState(
+    @StringRes message: Int,
+    onRetry: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(message),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.error,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = onRetry) {
+            Text(text = stringResource(R.string.retry))
+        }
     }
 }

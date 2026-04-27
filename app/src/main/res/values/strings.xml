@@ -58,9 +58,16 @@
     <string name="selected_items">Выбрано</string>
     <string name="already_in_collection">Уже в коллекции</string>
     <string name="successfully_added">Добавлено в "Хочу посмотреть"</string>
+
     <string name="error_adding">Ошибка добавления</string>
     <string name="error_loading">Ошибка загрузки</string>
-    <string name="error_internet">Ошибка загрузки, проверьте интернет</string>
+
+    <string name="error_not_found">Ничего не найдено, попробуйте еще раз</string>
+    <string name="error_parsing">Ошибка обработки данных</string>
+    <string name="error_internet">Ошибка загрузки, проверьте подключение к интернету.</string>
+    <string name="error_server">Сервис временно недоступен, повторите попытку позже. </string>
+    <string name="error_unknown">Произошла неизвестная ошибка, повторите попытку позже.</string>
+
 
     <string name="unknown_title">Без названия</string>
     <string name="unknown_year">Неизвестно</string>
