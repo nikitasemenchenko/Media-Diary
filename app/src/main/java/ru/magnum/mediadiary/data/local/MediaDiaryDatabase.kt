@@ -10,7 +10,7 @@ import ru.magnum.mediadiary.data.remote.model.GenreListTypeConverter
 import ru.magnum.mediadiary.data.remote.model.MediaItem
 import ru.magnum.mediadiary.data.remote.model.MovieStatusTypeConverter
 
-@Database(entities = [MediaItem::class], version = 8, exportSchema = false)
+@Database(entities = [MediaItem::class], version = 1, exportSchema = true)
 @TypeConverters(
     MovieStatusTypeConverter::class,
     GenreListTypeConverter::class,
@@ -34,8 +34,7 @@ abstract class MediaDiaryDatabase : RoomDatabase() {
                 appContext,
                 MediaDiaryDatabase::class.java,
                 DB_NAME
-            ).fallbackToDestructiveMigration()
-                .build()
+            ).build()
         }
     }
 }

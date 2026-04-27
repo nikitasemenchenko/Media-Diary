@@ -8,5 +8,5 @@ class ContentTypeTypeConverter {
     fun fromContentType(contentType: ContentType?): String? = contentType?.name
 
     @TypeConverter
-    fun toContentType(value: String?): ContentType? = ContentType.fromName(value)
+    fun toContentType(value: String?): ContentType = ContentType.fromName(value)
 }

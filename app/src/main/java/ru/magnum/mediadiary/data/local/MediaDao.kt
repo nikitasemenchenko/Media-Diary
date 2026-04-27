@@ -6,9 +6,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 import ru.magnum.mediadiary.data.remote.model.MediaItem
 import ru.magnum.mediadiary.data.remote.model.MovieStatus
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MediaDao {
@@ -37,11 +37,11 @@ interface MediaDao {
         """
     SELECT 
       COUNT(*) AS total,
-      SUM(CASE WHEN watchStatus = 'WATCHED' THEN 1 ELSE 0 END) AS watched,
-      SUM(CASE WHEN watchStatus = 'WATCHING' THEN 1 ELSE 0 END) AS watching,
-      SUM(CASE WHEN watchStatus = 'WANT_TO_WATCH' THEN 1 ELSE 0 END) AS wantToWatch
+      COALESCE(SUM(CASE WHEN watchStatus = 'WATCHED' THEN 1 ELSE 0 END), 0) AS watched,
+      COALESCE(SUM(CASE WHEN watchStatus = 'WATCHING' THEN 1 ELSE 0 END), 0) AS watching,
+      COALESCE(SUM(CASE WHEN watchStatus = 'WANT_TO_WATCH' THEN 1 ELSE 0 END), 0) AS wantToWatch
     FROM media_items
-"""
+    """
     )
     fun getCollectionStats(): Flow<MediaStats>
 
