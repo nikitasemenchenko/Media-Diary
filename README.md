@@ -5,10 +5,10 @@
 ## 📸 Screenshots
 
 <p float="left">
-  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/app/src/main/res/screenshots/search.jpg?raw=true" width="20%" />
-  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/app/src/main/res/screenshots/details.jpg?raw=true" width="20%" />
-  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/app/src/main/res/screenshots/collection.jpg?raw=true" width="20%" />
-  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/app/src/main/res/screenshots/statistics.jpg?raw=true" width="20%" />
+  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/screenshots/search.jpg?raw=true" width="20%" />
+  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/screenshots/details.jpg?raw=true" width="20%" />
+  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/screenshots/collection.jpg?raw=true" width="20%" />
+  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/screenshots/statistics.jpg?raw=true" width="20%" />
 </p>
 <p><i>Screenshots from the app</i></p>
 
