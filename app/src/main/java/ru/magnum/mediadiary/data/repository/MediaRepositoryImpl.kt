@@ -1,160 +1,174 @@
 package ru.magnum.mediadiary.data.repository
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import ru.magnum.mediadiary.data.local.MediaDao
-import ru.magnum.mediadiary.data.local.MediaStats
+import ru.magnum.mediadiary.data.mappers.MediaMapper
 import ru.magnum.mediadiary.data.remote.KinopoiskApi
-import ru.magnum.mediadiary.data.remote.model.ContentType
-import ru.magnum.mediadiary.data.remote.model.KinopoiskSearchDetailedResponse
-import ru.magnum.mediadiary.data.remote.model.KinopoiskSearchResponse
-import ru.magnum.mediadiary.data.remote.model.MediaItem
-import ru.magnum.mediadiary.data.remote.model.MediaItemMapper
-import ru.magnum.mediadiary.data.remote.model.MovieStatus
-import ru.magnum.mediadiary.data.remote.model.SearchResult
+import ru.magnum.mediadiary.data.remote.dto.ContentType
+import ru.magnum.mediadiary.domain.model.AddToCollectionResult
+import ru.magnum.mediadiary.domain.model.CollectionStats
+import ru.magnum.mediadiary.domain.model.MediaDetails
+import ru.magnum.mediadiary.domain.model.MediaPreview
+import ru.magnum.mediadiary.domain.model.MediaType
+import ru.magnum.mediadiary.domain.model.WatchStatus
 import ru.magnum.mediadiary.domain.repository.MediaRepository
 import javax.inject.Inject
 
 class MediaRepositoryImpl @Inject constructor(
     private val kpApi: KinopoiskApi,
     private val mediaDao: MediaDao,
-    private val mapper: MediaItemMapper = MediaItemMapper()
+    private val mapper: MediaMapper
 ): MediaRepository {
-    private var trendingMoviesCache: List<SearchResult>? = null
-    private var trendingSeriesCache: List<SearchResult>? = null
-    private var trendingAnimeCache: List<SearchResult>? = null
-    private var trendingCartoonsCache: List<SearchResult>? = null
-    private var trendingAnimatedSeriesCache: List<SearchResult>? = null
+    private var trendingMoviesCache: List<MediaPreview>? = null
+    private var trendingSeriesCache: List<MediaPreview>? = null
+    private var trendingAnimeCache: List<MediaPreview>? = null
+    private var trendingCartoonsCache: List<MediaPreview>? = null
+    private var trendingAnimatedSeriesCache: List<MediaPreview>? = null
 
 
-    override suspend fun search(query: String): KinopoiskSearchResponse = withContext(Dispatchers.IO) {
-        val response = kpApi.multiSearch(query = query)
-        val filtered = response.docs.filter { !it.poster?.url.isNullOrBlank() }
-        response.copy(docs = filtered)
+    override suspend fun search(query: String): List<MediaPreview> {
+        return kpApi.multiSearch(query = query)
+            .docs
+            .map { doc ->
+                mapper.searchResultToPreview(doc)
+            }
+            .filter { !it.poster.isNullOrBlank() }
     }
 
-    override suspend fun getTrendingMovies(): List<SearchResult> = withContext(Dispatchers.IO) {
-        if (trendingMoviesCache != null) {
-            return@withContext trendingMoviesCache!!
-        }
-        val moviesResponse = kpApi.getTrendingMovies().docs
-            .filter { !it.poster?.url.isNullOrBlank() }
-        trendingMoviesCache = moviesResponse
-        moviesResponse
+    override suspend fun getTrendingMovies(): List<MediaPreview> {
+        trendingMoviesCache?.let { return it }
+
+        return kpApi.getTrendingMovies()
+            .docs.map { doc ->
+                mapper.searchResultToPreview(doc)
+            }
+            .filter { !it.poster.isNullOrBlank() }
+            .also { trendingMoviesCache = it }
     }
 
-    override suspend fun getTrendingSeries(): List<SearchResult> = withContext(Dispatchers.IO) {
-        if (trendingSeriesCache != null) {
-            return@withContext trendingSeriesCache!!
-        }
-        val seriesResponse = kpApi.getTrendingSeries().docs
-            .filter { !it.poster?.url.isNullOrBlank() }
-        trendingSeriesCache = seriesResponse
-        seriesResponse
+    override suspend fun getTrendingSeries(): List<MediaPreview> {
+        trendingSeriesCache?.let { return it }
+
+        return kpApi.getTrendingSeries()
+            .docs.map { doc ->
+                mapper.searchResultToPreview(doc)
+            }
+            .filter { !it.poster.isNullOrBlank() }
+            .also { trendingSeriesCache = it }
     }
 
-    override suspend fun getTrendingAnime(): List<SearchResult> = withContext(Dispatchers.IO) {
-        if (trendingAnimeCache != null) {
-            return@withContext trendingAnimeCache!!
-        }
-        val animeResponse = kpApi.getTrendingAnime().docs
-            .filter { !it.poster?.url.isNullOrBlank() }
-        trendingAnimeCache = animeResponse
-        animeResponse
+    override suspend fun getTrendingAnime(): List<MediaPreview> {
+        trendingAnimeCache?.let { return it }
+
+        return kpApi.getTrendingAnime()
+            .docs.map { doc ->
+                mapper.searchResultToPreview(doc)
+            }
+            .filter { !it.poster.isNullOrBlank() }
+            .also { trendingAnimeCache = it }
     }
 
-    override suspend fun getTrendingCartoons(): List<SearchResult> = withContext(Dispatchers.IO) {
-        if (trendingCartoonsCache != null) {
-            return@withContext trendingCartoonsCache!!
-        }
-        val cartoonResponse = kpApi.getTrendingCartoons().docs
-            .filter { !it.poster?.url.isNullOrBlank() }
-        trendingCartoonsCache = cartoonResponse
-        cartoonResponse
+    override suspend fun getTrendingCartoons(): List<MediaPreview> {
+        trendingCartoonsCache?.let { return it }
+
+        return kpApi.getTrendingCartoons()
+            .docs.map { doc ->
+                mapper.searchResultToPreview(doc)
+            }
+            .filter { !it.poster.isNullOrBlank() }
+            .also { trendingCartoonsCache = it }
     }
 
-    override suspend fun getTrendingAnimatedSeries(): List<SearchResult> = withContext(Dispatchers.IO) {
-        if (trendingAnimatedSeriesCache != null) {
-            return@withContext trendingAnimatedSeriesCache!!
-        }
-        val animatedSeriesResponse = kpApi.getTrendingAnimatedSeries().docs
-            .filter { !it.poster?.url.isNullOrBlank() }
-        trendingAnimatedSeriesCache = animatedSeriesResponse
-        animatedSeriesResponse
+    override suspend fun getTrendingAnimatedSeries(): List<MediaPreview> {
+        trendingAnimatedSeriesCache?.let { return it }
+
+        return kpApi.getTrendingAnimatedSeries()
+            .docs.map { doc ->
+                mapper.searchResultToPreview(doc)
+            }
+            .filter { !it.poster.isNullOrBlank() }
+            .also { trendingAnimatedSeriesCache = it }
     }
 
-    override suspend fun getItemById(id: Int): KinopoiskSearchDetailedResponse {
-        return kpApi.getById(id = id)
-    }
-
-    override suspend fun deleteMediaItem(item: MediaItem){
-        return withContext(Dispatchers.IO){
-            mediaDao.delete(item)
-        }
+    override suspend fun deleteMediaDetails(item: MediaDetails){
+        mediaDao.delete(mapper.detailsToEntity(item))
     }
 
 
-    override suspend fun addToWishList(item: KinopoiskSearchDetailedResponse): Boolean {
-        return withContext(Dispatchers.IO) {
-            val newItem = mapper.toWishListItem(item)
-            val response = mediaDao.insertIgnore(newItem)
-            response != -1L
-        }
-    }
+    override suspend fun addToWishList(id: Int): AddToCollectionResult {
+        val fullItem = kpApi.getById(id)
+        val entity = mapper.detailedResponseToWishlistEntity(fullItem)
+        val result = mediaDao.insertIgnore(entity)
 
-    override suspend fun getMediaItem(id: Int): MediaItem {
-        return withContext(Dispatchers.IO) {
-            mediaDao.findById(id)?.let { return@withContext it }
-
-            val details = kpApi.getById(id = id)
-            val newItem = mapper.fromDetailedSearchResult(details)
-            newItem
+        return if (result == -1L) {
+            AddToCollectionResult.ALREADY_EXISTS
+        } else {
+            AddToCollectionResult.ADDED
         }
     }
 
-    override suspend fun createOrUpdateItem(item: MediaItem) {
-        return withContext(Dispatchers.IO) {
-            mediaDao.insert(item)
-        }
+    override suspend fun getMediaDetails(id: Int): MediaDetails  {
+        mediaDao.findById(id)?.let { return mapper.entityToDetails(it) }
+
+        val details = kpApi.getById(id = id)
+        return mapper.detailedResponseToDetails(details)
+    }
+
+    override suspend fun saveMediaDetails(item: MediaDetails) {
+            mediaDao.insert(mapper.detailsToEntity(item))
     }
 
 
-    override fun getCollectionByStatus(status: MovieStatus): Flow<List<MediaItem>> {
-        return mediaDao.getItemsByStatus(status)
-    }
+    override fun getCollectionByStatus(status: WatchStatus): Flow<List<MediaDetails>> {
+        val dataStatus = mapper.watchStatusToData(status)
 
+        requireNotNull(dataStatus)
 
-    override fun getTypesCount(): Flow<Map<ContentType, Int>> =
-        mediaDao.getTypes().map { list ->
-            list.associate { typeCount ->
-                val contentType = ContentType.fromName(typeCount.type)
-                contentType to typeCount.count
+        return mediaDao.getItemsByStatus(dataStatus).map { items ->
+            items.map { item ->
+                mapper.entityToDetails(item)
             }
         }
+    }
 
 
-    override fun getTopGenres(limit: Int): Flow<List<String>> {
+    override fun getTypesCount(): Flow<Map<MediaType, Int>> {
+        return mediaDao.getTypes().map { list ->
+            list.mapNotNull { typeCount ->
+                val contentType = ContentType.fromName(typeCount.type)
+                val mediaType = mapper.contentTypeToDomain(contentType)
+
+                mediaType?.let {
+                    it to typeCount.count
+                }
+            }.toMap()
+        }
+    }
+
+
+    override fun getTopGenres(): Flow<List<String>> {
         return mediaDao.getAllItems().map { items ->
-            items.asSequence()
-                .flatMap { it.genres?.asSequence() ?: emptySequence() }
+            items
+                .flatMap { it.genres.orEmpty() }
                 .filter { it.isNotBlank() }
                 .groupingBy { it }
                 .eachCount()
                 .toList()
                 .sortedByDescending { it.second }
+                .take(10)
                 .map { it.first }
-                .take(limit)
         }
     }
 
-    override fun getCollectionStats(): Flow<MediaStats> = mediaDao.getCollectionStats()
+    override fun getCollectionStats(): Flow<CollectionStats> {
+        return mediaDao.getCollectionStats().map { stats ->
+            mapper.statsToDomain(stats)
+        }
+    }
 
     override suspend fun deleteItemsByIds(ids: List<Int>) {
-        return withContext(Dispatchers.IO) {
-            mediaDao.deleteByIds(ids)
-        }
+        mediaDao.deleteByIds(ids)
     }
 
 }

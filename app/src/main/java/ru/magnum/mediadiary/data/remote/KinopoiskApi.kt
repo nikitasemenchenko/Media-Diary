@@ -1,10 +1,10 @@
 package ru.magnum.mediadiary.data.remote
 
-import ru.magnum.mediadiary.data.remote.model.KinopoiskSearchDetailedResponse
-import ru.magnum.mediadiary.data.remote.model.KinopoiskSearchResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import ru.magnum.mediadiary.data.remote.dto.KinopoiskSearchDetailedResponse
+import ru.magnum.mediadiary.data.remote.dto.KinopoiskSearchResponse
 
 interface KinopoiskApi {
     @GET("movie/search")
