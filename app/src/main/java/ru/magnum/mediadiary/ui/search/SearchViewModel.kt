@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import ru.magnum.mediadiary.R
 import ru.magnum.mediadiary.data.remote.model.SearchResult
-import ru.magnum.mediadiary.data.repository.MediaRepository
+import ru.magnum.mediadiary.domain.repository.MediaRepository
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 

@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import ru.magnum.mediadiary.R
 import ru.magnum.mediadiary.data.remote.model.MediaItem
 import ru.magnum.mediadiary.data.remote.model.MovieStatus
-import ru.magnum.mediadiary.data.repository.MediaRepository
+import ru.magnum.mediadiary.domain.repository.MediaRepository
 import javax.inject.Inject
 
 @HiltViewModel
