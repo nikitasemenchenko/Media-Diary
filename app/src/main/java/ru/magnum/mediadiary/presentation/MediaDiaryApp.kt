@@ -19,16 +19,19 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ru.magnum.mediadiary.R
+import ru.magnum.mediadiary.presentation.navigation.AppRoute
 import ru.magnum.mediadiary.presentation.navigation.MediaDiaryNavHost
-import ru.magnum.mediadiary.presentation.navigation.Screen
 
 
 data class NavItem(
-    val route: String,
+    val route: AppRoute,
     @StringRes val title: Int,
     val icon: ImageVector
 )
@@ -38,7 +41,7 @@ data class NavItem(
 fun MediaDiaryApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentRoute = navBackStackEntry?.destination
 
     Scaffold(
         bottomBar = {
@@ -56,28 +59,42 @@ fun MediaDiaryApp() {
 @Composable
 fun MediaDiaryBottomBar(
     navController: NavController,
-    currentRoute: String?
+    currentRoute: NavDestination?
 ) {
-    val showBottomBar = when (currentRoute) {
-        Screen.Search.route,
-        Screen.Collection.route,
-        Screen.Statistics.route -> true
-        else -> false
+    val navItems = listOf(
+        NavItem(
+            route = AppRoute.Search,
+            title = R.string.search_screen,
+            icon = Icons.Default.Search
+        ),
+        NavItem(
+            route = AppRoute.Collection,
+            title = R.string.collection_screen,
+            icon = Icons.Default.Favorite
+        ),
+        NavItem(
+            route = AppRoute.Statistics,
+            title = R.string.statistics_screen,
+            icon = Icons.Default.BarChart
+        )
+    )
+
+    val showBottomBar = navItems.any { item ->
+        currentRoute?.hierarchy?.any { destination ->
+            destination.hasRoute(item.route::class)
+        } == true
     }
 
     if (!showBottomBar) return
-
-    val navItems = listOf(
-        NavItem(Screen.Search.route, R.string.search_screen, Icons.Default.Search),
-        NavItem(Screen.Collection.route, R.string.collection_screen, Icons.Default.Favorite),
-        NavItem(Screen.Statistics.route, R.string.statistics_screen, Icons.Default.BarChart)
-    )
 
     NavigationBar(
         tonalElevation = 8.dp
     ) {
         navItems.forEach { item ->
-            val selected = currentRoute == item.route
+
+            val selected = currentRoute?.hierarchy?.any { destination ->
+                destination.hasRoute(item.route::class)
+            } == true
 
             NavigationBarItem(
                 selected = selected,

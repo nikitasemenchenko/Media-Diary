@@ -4,83 +4,73 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
+import kotlinx.serialization.Serializable
 import ru.magnum.mediadiary.presentation.collection.CollectionsScreen
 import ru.magnum.mediadiary.presentation.details.MediaDetailsWrapper
 import ru.magnum.mediadiary.presentation.search.SearchScreen
 import ru.magnum.mediadiary.presentation.statistics.StatisticsScreen
 
 
-sealed class Screen(
-    val route: String
-) {
-    object Search : Screen("search")
-    object Collection : Screen("collection")
-    object Statistics : Screen("statistics")
-    data class MediaDetail(val mediaId: Int) : Screen("media_detail/{$ARG}") {
-        companion object {
-            const val ARG = "mediaId"
-            const val ROUTE = "media_detail/{$ARG}"
-        }
-        fun createRoute() = "media_detail/$mediaId"
-    }
+sealed interface AppRoute {
+    @Serializable
+    data object Search: AppRoute
+
+    @Serializable
+    data object Collection: AppRoute
+
+    @Serializable
+    data object Statistics: AppRoute
+
+    @Serializable
+    data class MediaDetail(
+        val mediaId: Int
+    ): AppRoute
 }
 
 @Composable
 fun MediaDiaryNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues()
+    contentPadding: PaddingValues
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Search.route,
+        startDestination = AppRoute.Search,
         modifier = modifier
     ) {
-        composable(
-            route = Screen.Search.route
-        ) {
+        composable<AppRoute.Search> {
                 SearchScreen(
                     modifier = Modifier,
                     contentPadding = contentPadding,
                     onItemClick = { mediaId ->
-                        navController.navigate(Screen.MediaDetail(mediaId).createRoute())
+                        navController.navigate(
+                            AppRoute.MediaDetail(mediaId = mediaId)
+                        )
                     }
                 )
         }
-        composable(
-            route = Screen.Collection.route
-        ) {
+        composable<AppRoute.Collection> {
             CollectionsScreen(
                 contentPadding = contentPadding,
                 onCollectionItemClick = { collectionItemId ->
                     navController.navigate(
-                        Screen.MediaDetail(collectionItemId).createRoute()
+                        AppRoute.MediaDetail(mediaId = collectionItemId)
                     )
                 }
             )
         }
-        composable(
-            route = Screen.MediaDetail.ROUTE,
-            arguments = listOf(navArgument(Screen.MediaDetail.ARG) {
-                type = NavType.IntType
-                }
+        composable<AppRoute.MediaDetail> { backStackEntry ->
+            val route = backStackEntry.toRoute<AppRoute.MediaDetail>()
+
+            MediaDetailsWrapper(
+                mediaId = route.mediaId,
+                onBack = { navController.popBackStack() }
             )
-        )
-        { backStackEntry ->
-            val mediaItemId = backStackEntry.arguments?.getInt(Screen.MediaDetail.ARG) ?: 0
-            if (mediaItemId != 0) {
-                MediaDetailsWrapper(
-                    mediaId = mediaItemId,
-                    onBack = { navController.popBackStack() })
-            }
         }
-        composable(
-            route = Screen.Statistics.route
-        ) {
+        composable<AppRoute.Statistics> {
             StatisticsScreen(
                 contentPadding = contentPadding
             )
