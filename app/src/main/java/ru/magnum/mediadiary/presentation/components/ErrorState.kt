@@ -3,15 +3,18 @@ package ru.magnum.mediadiary.presentation.components
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,7 +28,8 @@ import ru.magnum.mediadiary.R
 fun ErrorState(
     modifier: Modifier = Modifier,
     @StringRes message: Int,
-    onRetry: (() -> Unit)? = null
+    onRetry: (() -> Unit)? = null,
+    onBack: (() -> Unit)? = null,
 ) {
     Column(
         modifier = modifier
@@ -49,11 +53,28 @@ fun ErrorState(
             textAlign = TextAlign.Center
         )
 
-        if (onRetry != null) {
+        if (onRetry != null || onBack != null) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(onClick = onRetry) {
-                Text(text = stringResource(R.string.retry))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (onBack != null) {
+                    OutlinedButton(onClick = onBack) {
+                        Text(text = stringResource(R.string.back))
+                    }
+                }
+
+                if (onRetry != null && onBack != null) {
+                    Spacer(modifier = Modifier.width(12.dp))
+                }
+
+                if (onRetry != null) {
+                    Button(onClick = onRetry) {
+                        Text(text = stringResource(R.string.retry))
+                    }
+                }
             }
         }
     }

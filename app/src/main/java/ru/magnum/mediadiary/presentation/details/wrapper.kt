@@ -29,7 +29,8 @@ fun MediaDetailsWrapper(
         is MediaDetailUiState.Error -> {
             ErrorState(
                 message = (uiState as MediaDetailUiState.Error).message,
-                onRetry = { vm.loadMediaItem(mediaId) }
+                onRetry = { vm.loadMediaItem(mediaId) },
+                onBack = onBack
             )
         }
 
