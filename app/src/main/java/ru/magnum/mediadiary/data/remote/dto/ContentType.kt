@@ -12,13 +12,13 @@ enum class ContentType(
     ANIMATED_SERIES(AppConstants.ApiConstants.ANIMATED_SERIES);
 
     companion object {
-        fun fromApiValue(apiValue: String?): ContentType {
-            if (apiValue == null) return MOVIE
-            return entries.find { it.apiValue == apiValue } ?: MOVIE
+        fun fromApiValue(apiValue: String?): ContentType? {
+            if (apiValue.isNullOrBlank()) return null
+            return entries.find { it.apiValue == apiValue }
         }
 
-        fun fromName(name: String?): ContentType {
-            if (name == null) return MOVIE
+        fun fromName(name: String?): ContentType? {
+            if (name.isNullOrBlank()) return null
             entries.find { it.name == name }?.let { return it }
             return fromApiValue(name)
         }

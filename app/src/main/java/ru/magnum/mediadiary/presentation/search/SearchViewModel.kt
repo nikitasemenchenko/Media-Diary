@@ -55,7 +55,7 @@ class SearchViewModel @Inject constructor(
         _searchQuery.value = query
         searchJob?.cancel()
 
-        if (query == "") {
+        if (query.isBlank()) {
             loadTrending()
         } else {
             searchJob = viewModelScope.launch {
@@ -66,10 +66,17 @@ class SearchViewModel @Inject constructor(
     }
 
     private suspend fun makeSearch(query: String) {
+        val normalQuery = query.trim()
+
+        if (normalQuery.isBlank()) {
+            _searchResults.value = emptyList()
+            return
+        }
+
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         runCatching {
-            val response = repository.search(query = query)
+            val response = repository.search(query = normalQuery)
 
             _uiState.update {
                 it.copy(

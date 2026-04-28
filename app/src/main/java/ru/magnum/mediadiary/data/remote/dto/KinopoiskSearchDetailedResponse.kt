@@ -11,7 +11,7 @@ data class KinopoiskSearchDetailedResponse(
     val enName: String? = null,
     val year: Int? = null,
     val description: String? = null,
-    val type: String,
+    val type: String? = null,
     val rating: KinopoiskRating? = null,
     val poster: KinopoiskPoster? = null,
     val genres: List<KinopoiskGenres> = emptyList(),
@@ -59,7 +59,7 @@ data class KinopoiskSearchDetailedResponse(
         return countries?.joinToString(", ") { it.name.toString() }
     }
 
-    fun getItemType(): ContentType {
+    fun getItemType(): ContentType? {
         return ContentType.fromApiValue(type)
     }
 

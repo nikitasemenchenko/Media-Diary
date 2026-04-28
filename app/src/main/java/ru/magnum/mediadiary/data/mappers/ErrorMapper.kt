@@ -1,9 +1,9 @@
 package ru.magnum.mediadiary.data.mappers
 
 import kotlinx.serialization.SerializationException
-import okio.IOException
 import retrofit2.HttpException
 import ru.magnum.mediadiary.domain.model.AppError
+import java.io.IOException
 import javax.inject.Inject
 
 class ErrorMapper @Inject constructor() {

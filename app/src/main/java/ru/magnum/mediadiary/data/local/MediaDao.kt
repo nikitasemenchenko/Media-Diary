@@ -59,6 +59,6 @@ data class MediaStats(
 )
 
 data class TypeCount(
-    val type: String,
+    val type: String?,
     val count: Int
 )

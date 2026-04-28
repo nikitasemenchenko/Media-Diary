@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -27,12 +28,16 @@ class CollectionViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CollectionUiState())
     val uiState = _uiState.asStateFlow()
 
+    private var loadItemsJob: Job? = null
+
     init {
         loadItems()
     }
 
     fun loadItems() {
-        viewModelScope.launch {
+        loadItemsJob?.cancel()
+
+        loadItemsJob = viewModelScope.launch {
             _uiState
                 .map { it.selectedTab }
                 .distinctUntilChanged()
@@ -41,6 +46,8 @@ class CollectionViewModel @Inject constructor(
                     repository.getCollectionByStatus(status)
                 }
                 .catch { e ->
+                    if (e is CancellationException) throw e
+
                     _uiState.update {
                         it.copy(
                             isLoading = false,

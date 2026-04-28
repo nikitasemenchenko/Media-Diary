@@ -36,7 +36,7 @@ data class SearchResult(
             .take(AppConstants.Limits.GENRES_LIMIT)
     }
 
-    fun getItemType(): ContentType {
+    fun getItemType(): ContentType? {
         return ContentType.fromApiValue(type)
     }
 

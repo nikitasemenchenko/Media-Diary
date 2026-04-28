@@ -52,7 +52,6 @@ fun CollectionsScreen(
 
     if (uiState.isDeleteDialogVisible) {
         DeleteSelectedDialog(
-            selectedCount = uiState.selectedItems.size,
             onConfirm = vm::confirmDeleteSelected,
             onDismiss = vm::dismissDeleteDialog
         )
@@ -200,7 +199,6 @@ fun CollectionItemCard(
 
 @Composable
 private fun DeleteSelectedDialog(
-    selectedCount: Int,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -211,10 +209,7 @@ private fun DeleteSelectedDialog(
         },
         text = {
             Text(
-                text = stringResource(
-                    R.string.delete_selected_confirmation,
-                    selectedCount
-                )
+                text = stringResource(R.string.delete_selected_confirmation)
             )
         },
         confirmButton = {
