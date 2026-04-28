@@ -55,6 +55,7 @@ fun MediaDiaryNavHost(
             route = Screen.Collection.route
         ) {
             CollectionsScreen(
+                contentPadding = contentPadding,
                 onCollectionItemClick = { collectionItemId ->
                     navController.navigate(
                         Screen.MediaDetail(collectionItemId).createRoute()
@@ -80,7 +81,9 @@ fun MediaDiaryNavHost(
         composable(
             route = Screen.Statistics.route
         ) {
-            StatisticsScreen()
+            StatisticsScreen(
+                contentPadding = contentPadding
+            )
         }
     }
 }

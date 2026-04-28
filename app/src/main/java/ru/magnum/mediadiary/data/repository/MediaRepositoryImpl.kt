@@ -37,7 +37,7 @@ class MediaRepositoryImpl @Inject constructor(
             .map { doc ->
                 mapper.searchResultToPreview(doc)
             }
-            .filter { !it.poster.isNullOrBlank() }
+            .filter { !it.title.isNullOrBlank() && !it.poster.isNullOrBlank() }
     }
 
     override suspend fun getTrendingMovies(): List<MediaPreview> = runCatchingAppError  {

@@ -8,12 +8,14 @@ data class KinopoiskSearchDetailedResponse(
     val id: Int,
     val name: String? = null,
     val alternativeName: String? = null,
+    val enName: String? = null,
     val year: Int? = null,
-    val description: String? = "",
+    val description: String? = null,
     val type: String,
     val rating: KinopoiskRating? = null,
     val poster: KinopoiskPoster? = null,
     val genres: List<KinopoiskGenres> = emptyList(),
+    val names: List<KinopoiskName> = emptyList(),
     val countries: List<KinopoiskCountry>? = null,
     val movieLength: Int? = null,
     val seriesLength: Int? = null,
@@ -21,18 +23,31 @@ data class KinopoiskSearchDetailedResponse(
     val persons: List<KinopoiskPerson>? = null
 ) {
     fun getItemTitle(): String? {
-        return name ?: alternativeName
+        return name?.takeIf { it.isNotBlank() }
+            ?: alternativeName?.takeIf { it.isNotBlank() }
+            ?: enName?.takeIf { it.isNotBlank() }
+            ?: names.firstNotNullOfOrNull { item ->
+                item.name?.takeIf { it.isNotBlank() }
+            }
     }
+
+    fun getPosterUrl(): String? {
+        return poster?.url?.takeIf { it.isNotBlank() }
+            ?: poster?.previewUrl?.takeIf { it.isNotBlank() }
+    }
+
     fun getItemGenres(): List<String> {
-        return genres.map { it.name ?: "" }.take(AppConstants.Limits.GENRES_LIMIT)
+        return genres
+            .mapNotNull { it.name?.takeIf { name -> name.isNotBlank() } }
+            .take(AppConstants.Limits.GENRES_LIMIT)
     }
 
 
     fun getItemRating(): Double? {
         val kp = rating?.kp
         val imdb = rating?.imdb
-        val availableRatings = listOfNotNull(kp, imdb)
-        return availableRatings
+        return listOfNotNull(kp, imdb)
+            .filter { it > 0.0 }
             .maxOrNull()
     }
 

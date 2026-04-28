@@ -16,6 +16,7 @@ import ru.magnum.mediadiary.domain.model.WatchStatus
 import ru.magnum.mediadiary.domain.repository.MediaRepository
 import ru.magnum.mediadiary.presentation.mappers.toMessageRes
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -57,7 +58,13 @@ class CollectionViewModel @Inject constructor(
 
 
     fun changeTab(tab: WatchStatus) {
-        _uiState.update { it.copy(selectedTab = tab) }
+        _uiState.update {
+            it.copy(
+                selectedTab = tab,
+                selectedItems = emptySet(),
+                isDeleteDialogVisible = false
+            )
+        }
     }
 
     fun toggleDeletion(id: Int) {
@@ -75,21 +82,49 @@ class CollectionViewModel @Inject constructor(
         }
     }
 
-    fun deleteSelected() {
+    fun requestDeleteSelected() {
+        if (_uiState.value.selectedItems.isEmpty()) return
+
+        _uiState.update {
+            it.copy(isDeleteDialogVisible = true)
+        }
+    }
+
+    fun dismissDeleteDialog() {
+        _uiState.update {
+            it.copy(isDeleteDialogVisible = false)
+        }
+    }
+
+    fun confirmDeleteSelected() {
         val toDelete = _uiState.value.selectedItems.toList()
-        if (toDelete.isEmpty()) return
+        if (toDelete.isEmpty()) {
+            dismissDeleteDialog()
+            return
+        }
+
         viewModelScope.launch {
             runCatching {
                 repository.deleteItemsByIds(toDelete)
-                clearSelection()
+            }.onSuccess {
+                _uiState.update {
+                    it.copy(
+                        selectedItems = emptySet(),
+                        isDeleteDialogVisible = false
+                    )
+                }
             }.onFailure { e ->
+                if (e is CancellationException) throw e
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = e.toMessageRes()
+                        errorMessage = e.toMessageRes(),
+                        isDeleteDialogVisible = false
                     )
                 }
             }
         }
     }
 }
+

@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -53,12 +54,14 @@ fun MediaDiaryApp() {
 }
 
 @Composable
-fun MediaDiaryBottomBar(navController: NavController, currentRoute: String?) {
+fun MediaDiaryBottomBar(
+    navController: NavController,
+    currentRoute: String?
+) {
     val showBottomBar = when (currentRoute) {
         Screen.Search.route,
         Screen.Collection.route,
         Screen.Statistics.route -> true
-
         else -> false
     }
 
@@ -69,16 +72,22 @@ fun MediaDiaryBottomBar(navController: NavController, currentRoute: String?) {
         NavItem(Screen.Collection.route, R.string.collection_screen, Icons.Default.Favorite),
         NavItem(Screen.Statistics.route, R.string.statistics_screen, Icons.Default.BarChart)
     )
-    NavigationBar {
+
+    NavigationBar(
+        tonalElevation = 8.dp
+    ) {
         navItems.forEach { item ->
+            val selected = currentRoute == item.route
+
             NavigationBarItem(
-                selected = currentRoute == item.route,
+                selected = selected,
                 onClick = {
-                    if (currentRoute != item.route) {
+                    if (!selected) {
                         navController.navigate(item.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
+
                             launchSingleTop = true
                             restoreState = true
                         }
@@ -91,7 +100,10 @@ fun MediaDiaryBottomBar(navController: NavController, currentRoute: String?) {
                     )
                 },
                 label = {
-                    Text(stringResource(item.title))
+                    Text(
+                        text = stringResource(item.title),
+                        maxLines = 1
+                    )
                 }
             )
         }
