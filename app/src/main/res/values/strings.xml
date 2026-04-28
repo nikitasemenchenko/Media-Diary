@@ -59,6 +59,7 @@
     <string name="successfully_added">Добавлено в "Хочу посмотреть"</string>
     <string name="no_genres">Пока что здесь нет любимых жанров.</string>
     <string name="no_date">Дата не выбрана</string>
+    <string name="no_poster">Нет постера</string>
 
     <string name="error_adding">Ошибка добавления</string>
     <string name="error_loading">Ошибка загрузки</string>

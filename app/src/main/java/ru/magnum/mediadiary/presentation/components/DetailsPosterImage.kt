@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import roundToOneSign
@@ -40,8 +41,6 @@ fun DetailsPosterImage(
     val request = remember(item.poster) {
         ImageRequest.Builder(context)
             .data(item.poster)
-            .placeholder(R.drawable.loading_img)
-            .error(R.drawable.ic_connection_error)
             .diskCachePolicy(CachePolicy.ENABLED)
             .memoryCachePolicy(CachePolicy.ENABLED)
             .allowHardware(true)
@@ -56,13 +55,31 @@ fun DetailsPosterImage(
             .clip(MaterialTheme.shapes.large)
             .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        AsyncImage(
-            model = request,
-            contentDescription = item.title,
-            modifier = Modifier.matchParentSize(),
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.Center
-        )
+        if (item.poster.isNullOrBlank()) {
+            PosterPlaceholder()
+        } else {
+            SubcomposeAsyncImage(
+                model = request,
+                contentDescription = item.title,
+                modifier = Modifier.matchParentSize(),
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.Center,
+                loading = {
+                    Box(
+                        modifier = Modifier.matchParentSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                },
+                error = {
+                    PosterPlaceholder(
+                        modifier = Modifier.matchParentSize()
+                    )
+                }
+            )
+        }
+
 
         Box(
             modifier = Modifier
@@ -115,7 +132,7 @@ fun DetailsPosterImage(
 private fun ratingColor(rating: Double): Color {
     return when {
         rating >= 8.0 -> gold
-        rating >= 4.5 -> green
+        rating >= 5.5 -> green
         else -> MaterialTheme.colorScheme.error
     }
 }

@@ -3,7 +3,11 @@ package ru.magnum.mediadiary.presentation.components
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -25,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,7 +51,7 @@ fun UserWatchInfoSection(
     onNoteChange: (String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    androidx.compose.foundation.layout.Column(
+    Column(
         modifier = modifier
     ) {
         DetailsTitle(R.string.user_rating)
@@ -74,9 +79,14 @@ fun UserWatchInfoSection(
                 Text(stringResource(R.string.note_label))
             },
             modifier = Modifier
-                .padding(vertical = 4.dp),
+                .padding(vertical = 4.dp)
+                .fillMaxWidth(),
             minLines = 2,
             shape = MaterialTheme.shapes.medium
+        )
+
+        Spacer(
+            modifier = Modifier.height(30.dp)
         )
     }
 }
@@ -138,7 +148,7 @@ private fun WatchDateSelector(
     onDateChanged: (Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showDialog by remember { mutableStateOf(false) }
+    var showDialog by rememberSaveable { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = watchDate ?: System.currentTimeMillis()
@@ -163,7 +173,7 @@ private fun WatchDateSelector(
             }
         },
         shape = MaterialTheme.shapes.medium,
-        modifier = modifier.padding(vertical = 8.dp)
+        modifier = modifier.padding(vertical = 8.dp).fillMaxWidth()
     )
 
     if (showDialog) {
