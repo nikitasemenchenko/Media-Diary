@@ -3,6 +3,7 @@ package ru.magnum.mediadiary.presentation.statistics
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 import ru.magnum.mediadiary.domain.repository.MediaRepository
 import ru.magnum.mediadiary.presentation.mappers.toMessageRes
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
@@ -20,13 +22,19 @@ class StatisticsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(StatisticsUiState())
     val uiState = _uiState.asStateFlow()
 
+    private var statisticsJob: Job? = null
+
     init {
         loadStatistics()
     }
 
     fun loadStatistics() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+        statisticsJob?.cancel()
+
+        statisticsJob = viewModelScope.launch {
+            _uiState.update {
+                it.copy(isLoading = true)
+            }
 
             combine(
                 repository.getCollectionStats(),
@@ -45,6 +53,8 @@ class StatisticsViewModel @Inject constructor(
                 )
             }
                 .catch { e ->
+                    if (e is CancellationException) throw e
+
                     _uiState.update {
                         it.copy(
                             isLoading = false,

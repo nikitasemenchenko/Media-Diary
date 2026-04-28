@@ -17,6 +17,7 @@ import ru.magnum.mediadiary.domain.model.MediaType
 import ru.magnum.mediadiary.domain.model.WatchStatus
 import ru.magnum.mediadiary.domain.repository.MediaRepository
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 class MediaRepositoryImpl @Inject constructor(
     private val kpApi: KinopoiskApi,
@@ -37,11 +38,12 @@ class MediaRepositoryImpl @Inject constructor(
             .map { doc ->
                 mapper.searchResultToPreview(doc)
             }
-            .filter { !it.poster.isNullOrBlank() }
+            .filter { !it.title.isNullOrBlank() && !it.poster.isNullOrBlank() }
     }
 
     override suspend fun getTrendingMovies(): List<MediaPreview> = runCatchingAppError  {
-        trendingMoviesCache?.let { it }
+        trendingMoviesCache?.let {
+            return@runCatchingAppError it }
 
         kpApi.getTrendingMovies()
             .docs.map { doc ->
@@ -52,7 +54,8 @@ class MediaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTrendingSeries(): List<MediaPreview> = runCatchingAppError  {
-        trendingSeriesCache?.let { it }
+        trendingSeriesCache?.let {
+            return@runCatchingAppError it }
 
         kpApi.getTrendingSeries()
             .docs.map { doc ->
@@ -63,7 +66,8 @@ class MediaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTrendingAnime(): List<MediaPreview>  = runCatchingAppError {
-        trendingAnimeCache?.let { it }
+        trendingAnimeCache?.let {
+            return@runCatchingAppError it }
 
         kpApi.getTrendingAnime()
             .docs.map { doc ->
@@ -74,7 +78,8 @@ class MediaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTrendingCartoons(): List<MediaPreview> = runCatchingAppError {
-        trendingCartoonsCache?.let { it }
+        trendingCartoonsCache?.let {
+            return@runCatchingAppError it }
 
         kpApi.getTrendingCartoons()
             .docs.map { doc ->
@@ -85,7 +90,8 @@ class MediaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTrendingAnimatedSeries(): List<MediaPreview> = runCatchingAppError {
-        trendingAnimatedSeriesCache?.let { it }
+        trendingAnimatedSeriesCache?.let {
+            return@runCatchingAppError it }
 
         kpApi.getTrendingAnimatedSeries()
             .docs.map { doc ->
@@ -136,8 +142,9 @@ class MediaRepositoryImpl @Inject constructor(
                 mapper.entityToDetails(item)
             }
         }.catch { e ->
-                throw e.toAppException()
-            }
+            if (e is CancellationException) throw e
+            throw e.toAppException()
+        }
     }
 
 
@@ -153,6 +160,7 @@ class MediaRepositoryImpl @Inject constructor(
             }.toMap()
 
         }.catch { e ->
+            if (e is CancellationException) throw e
             throw e.toAppException()
         }
     }
@@ -170,6 +178,7 @@ class MediaRepositoryImpl @Inject constructor(
                 .take(10)
                 .map { it.first }
         }.catch { e ->
+            if (e is CancellationException) throw e
             throw e.toAppException()
         }
     }
@@ -178,6 +187,7 @@ class MediaRepositoryImpl @Inject constructor(
         return mediaDao.getCollectionStats().map { stats ->
             mapper.statsToDomain(stats)
         }.catch { e ->
+            if (e is CancellationException) throw e
             throw e.toAppException()
         }
     }
@@ -203,6 +213,7 @@ class MediaRepositoryImpl @Inject constructor(
         return try {
             block()
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             throw e.toAppException()
         }
     }

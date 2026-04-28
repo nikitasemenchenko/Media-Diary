@@ -5,4 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class KinopoiskPoster(
     val url: String? = "",
+    val previewUrl: String? = null
 )

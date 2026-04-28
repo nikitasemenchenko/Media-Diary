@@ -62,7 +62,7 @@ class MediaMapper @Inject constructor() {
             year = item.year,
             type = contentTypeToDomain(item.getItemType()),
             rating = item.getItemRating(),
-            poster = item.poster?.url,
+            poster = item.getPosterUrl(),
             genres = item.getItemGenres()
         )
     }
@@ -75,7 +75,7 @@ class MediaMapper @Inject constructor() {
             description = item.description,
             type = contentTypeToDomain(item.getItemType()),
             rating = item.getItemRating(),
-            poster = item.poster?.url,
+            poster = item.getPosterUrl(),
             genres = item.getItemGenres(),
             ageRating = item.getAge(),
             director = item.getDirectorName(),
@@ -98,7 +98,7 @@ class MediaMapper @Inject constructor() {
             description = item.description,
             type = item.getItemType(),
             rating = item.getItemRating(),
-            poster = item.poster?.url,
+            poster = item.getPosterUrl(),
             genres = item.getItemGenres(),
             ageRating = item.getAge(),
             director = item.getDirectorName(),

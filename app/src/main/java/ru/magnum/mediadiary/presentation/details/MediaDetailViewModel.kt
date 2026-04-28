@@ -46,7 +46,14 @@ class MediaDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 runCatching {
                     repository.deleteMediaDetails(currentItem)
-                    _uiState.value = MediaDetailUiState.Success(currentItem.copy(watchStatus = null))
+                    _uiState.value = MediaDetailUiState.Success(
+                        currentItem.copy(
+                            watchStatus = null,
+                            userRating = null,
+                            watchDate = null,
+                            userNote = null
+                        )
+                    )
                 }.onFailure { e ->
                     if (e is CancellationException) throw e
                     _uiState.value = MediaDetailUiState.Error(e.toMessageRes())
