@@ -11,7 +11,7 @@ import org.junit.Rule
 import org.junit.Test
 import ru.magnum.mediadiary.R
 import ru.magnum.mediadiary.SuspendRule
-import ru.magnum.mediadiary.data.FakeMediaRepository
+import ru.magnum.mediadiary.data.repository.FakeMediaRepository
 import ru.magnum.mediadiary.domain.model.AppError
 import ru.magnum.mediadiary.domain.model.AppException
 import ru.magnum.mediadiary.domain.model.MediaDetails

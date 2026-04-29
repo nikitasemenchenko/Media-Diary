@@ -1,4 +1,4 @@
-package ru.magnum.mediadiary.data
+package ru.magnum.mediadiary.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
