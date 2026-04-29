@@ -20,7 +20,7 @@ splashscreen = "1.0.1"
 composeRuntime = "1.7.7"
 lifecycle = "2.8.7"
 navigationCompose = "2.8.7"
-material-icons-extended = "1.7.7"
+coroutines = "1.10.2"
 hilt = "2.57.1"
 hiltNavigationCompose = "1.2.0"
 
@@ -56,6 +56,7 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
