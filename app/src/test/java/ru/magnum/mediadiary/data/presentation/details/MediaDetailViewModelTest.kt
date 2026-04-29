@@ -6,6 +6,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import ru.magnum.mediadiary.R
@@ -26,8 +27,14 @@ class MediaDetailViewModelTest {
     @get:Rule
     val mainDispatcherRule = SuspendRule()
 
-    val repository = FakeMediaRepository()
-    val viewModel = MediaDetailViewModel(repository)
+    private lateinit var repository: FakeMediaRepository
+    private lateinit var viewModel: MediaDetailViewModel
+
+    @Before
+    fun setup(){
+        repository = FakeMediaRepository()
+        viewModel = MediaDetailViewModel(repository)
+    }
 
     @Test
     fun `loadMediaItem sets success state when repository returns item`() = runTest {

@@ -2,6 +2,7 @@ package ru.magnum.mediadiary.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import ru.magnum.mediadiary.domain.model.AddToCollectionResult
 import ru.magnum.mediadiary.domain.model.CollectionStats
 import ru.magnum.mediadiary.domain.model.MediaDetails
@@ -18,6 +19,12 @@ class FakeMediaRepository : MediaRepository {
     var savedItem: MediaDetails? = null
     var deletedItem: MediaDetails? = null
     var deletedIds: List<Int>? = null
+
+    val wantToWatchItems = MutableStateFlow<List<MediaDetails>>(emptyList())
+    val watchingItems = MutableStateFlow<List<MediaDetails>>(emptyList())
+    val watchedItems = MutableStateFlow<List<MediaDetails>>(emptyList())
+
+    var deleteItemsException: Throwable? = null
 
     override suspend fun search(query: String): List<MediaPreview> = emptyList()
 
@@ -41,7 +48,15 @@ class FakeMediaRepository : MediaRepository {
     override suspend fun getTrendingAnimatedSeries(): List<MediaPreview> = emptyList()
 
     override fun getCollectionByStatus(status: WatchStatus): Flow<List<MediaDetails>> {
-        return MutableStateFlow(emptyList())
+        exception?.let { exception ->
+            return flow { throw exception }
+        }
+
+        return when (status) {
+            WatchStatus.WANT_TO_WATCH -> wantToWatchItems
+            WatchStatus.WATCHING -> watchingItems
+            WatchStatus.WATCHED -> watchedItems
+        }
     }
 
     override suspend fun saveMediaDetails(item: MediaDetails) {
@@ -55,6 +70,7 @@ class FakeMediaRepository : MediaRepository {
     }
 
     override suspend fun deleteItemsByIds(ids: List<Int>) {
+        deleteItemsException?.let { throw it }
         deletedIds = ids
     }
 
