@@ -10,6 +10,7 @@ fun AppError.messageRes(): Int {
         AppError.Network -> R.string.error_internet
         AppError.Server -> R.string.error_server
         AppError.NotFound -> R.string.error_not_found
+        AppError.Unauthorized -> R.string.error_unauthorized
         AppError.Parsing -> R.string.error_parsing
         AppError.Unknown -> R.string.error_unknown
     }

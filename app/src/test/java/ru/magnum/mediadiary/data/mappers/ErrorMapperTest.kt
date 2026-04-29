@@ -36,6 +36,13 @@ class ErrorMapperTest {
     }
 
     @Test
+    fun `401 maps to Unauthorized`() {
+        val error = mapper.map(httpException(401))
+
+        assertEquals(AppError.Unauthorized, error)
+    }
+
+    @Test
     fun `500 maps to Server`() {
         val error = mapper.map(httpException(500))
 

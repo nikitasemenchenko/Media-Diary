@@ -27,6 +27,10 @@ val kpApiKey: String = localProperties.getProperty("KP_API_KEY")
     ?: System.getenv("KP_API_KEY")
     ?: ""
 
+if (kpApiKey.isBlank()) {
+    throw GradleException("KP_API_KEY is missing.")
+}
+
 android {
     namespace = "ru.magnum.mediadiary"
     compileSdk = 36

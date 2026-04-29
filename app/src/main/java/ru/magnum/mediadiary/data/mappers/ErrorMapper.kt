@@ -14,6 +14,7 @@ class ErrorMapper @Inject constructor() {
             is HttpException -> {
                 when(e.code()) {
                     404 -> AppError.NotFound
+                    401 -> AppError.Unauthorized
                     else -> AppError.Server
                 }
             }
