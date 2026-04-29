@@ -5,10 +5,12 @@
 ## 📸 Screenshots
 
 <p float="left">
-  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/screenshots/search.jpg?raw=true" width="20%" />
-  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/screenshots/details.jpg?raw=true" width="20%" />
-  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/screenshots/collection.jpg?raw=true" width="20%" />
-  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/screenshots/statistics.jpg?raw=true" width="20%" />
+  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/store/screenshots/01_search_trending.png?raw=true" width="20%" />
+  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/store/screenshots/02_search_results.png?raw=true" width="20%" />
+  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/store/screenshots/03_details.png?raw=true" width="20%" />
+  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/store/screenshots/04_details_watched.png?raw=true" width="20%" />
+  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/store/screenshots/05_collection.png?raw=true" width="20%" />
+  <img src="https://github.com/nikitasemenchenko/Media-Diary/blob/main/store/screenshots/06_statistics.png?raw=true" width="20%" />
 </p>
 <p><i>Screenshots from the app</i></p>
 
