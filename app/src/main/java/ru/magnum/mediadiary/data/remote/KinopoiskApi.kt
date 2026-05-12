@@ -10,7 +10,7 @@ interface KinopoiskApi {
     @GET("movie/search")
     suspend fun multiSearch(
         @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 40,
+        @Query("limit") limit: Int = 10,
         @Query("query") query: String? = null
     ): KinopoiskSearchResponse
 
@@ -22,7 +22,7 @@ interface KinopoiskApi {
     @GET("movie")
     suspend fun getTrendingMovies(
         @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 30,
+        @Query("limit") limit: Int = 10,
         @Query("sortField") sortField: String = "votes.imdb",
         @Query("sortType") sortType: String = "-1",
         @Query("type") type: String = "movie"
@@ -31,7 +31,7 @@ interface KinopoiskApi {
     @GET("movie")
     suspend fun getTrendingSeries(
         @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 30,
+        @Query("limit") limit: Int = 10,
         @Query("sortField") sortField: String = "votes.imdb",
         @Query("sortType") sortType: String = "-1",
         @Query("type") type: String = "tv-series"
@@ -40,7 +40,7 @@ interface KinopoiskApi {
     @GET("movie")
     suspend fun getTrendingAnime(
         @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 25,
+        @Query("limit") limit: Int = 10,
         @Query("sortField") sortField: String = "votes.imdb",
         @Query("sortType") sortType: String = "-1",
         @Query("type") type: String = "anime"
@@ -49,7 +49,7 @@ interface KinopoiskApi {
     @GET("movie")
     suspend fun getTrendingCartoons(
         @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 20,
+        @Query("limit") limit: Int = 10,
         @Query("sortField") sortField: String = "votes.imdb",
         @Query("sortType") sortType: String = "-1",
         @Query("type") type: String = "cartoon"
@@ -58,7 +58,7 @@ interface KinopoiskApi {
     @GET("movie")
     suspend fun getTrendingAnimatedSeries(
         @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 20,
+        @Query("limit") limit: Int = 10,
         @Query("sortField") sortField: String = "votes.imdb",
         @Query("sortType") sortType: String = "-1",
         @Query("type") type: String = "animated-series"

@@ -41,63 +41,68 @@ class MediaRepositoryImpl @Inject constructor(
             .filter { !it.title.isNullOrBlank() && !it.poster.isNullOrBlank() }
     }
 
-    override suspend fun getTrendingMovies(): List<MediaPreview> = runCatchingAppError  {
+    override suspend fun getTrendingMovies(page: Int): List<MediaPreview> = runCatchingAppError  {
         trendingMoviesCache?.let {
             return@runCatchingAppError it }
 
-        kpApi.getTrendingMovies()
+        kpApi.getTrendingMovies(page = page)
             .docs.map { doc ->
                 mapper.searchResultToPreview(doc)
             }
             .filter { !it.poster.isNullOrBlank() }
+            .shuffled()
             .also { trendingMoviesCache = it }
     }
 
-    override suspend fun getTrendingSeries(): List<MediaPreview> = runCatchingAppError  {
+    override suspend fun getTrendingSeries(page: Int): List<MediaPreview> = runCatchingAppError  {
         trendingSeriesCache?.let {
             return@runCatchingAppError it }
 
-        kpApi.getTrendingSeries()
+        kpApi.getTrendingSeries(page = page)
             .docs.map { doc ->
                 mapper.searchResultToPreview(doc)
             }
             .filter { !it.poster.isNullOrBlank() }
+            .shuffled()
             .also { trendingSeriesCache = it }
     }
 
-    override suspend fun getTrendingAnime(): List<MediaPreview>  = runCatchingAppError {
+    override suspend fun getTrendingAnime(page: Int): List<MediaPreview>  = runCatchingAppError {
         trendingAnimeCache?.let {
             return@runCatchingAppError it }
 
-        kpApi.getTrendingAnime()
+        kpApi.getTrendingAnime(page = page)
             .docs.map { doc ->
                 mapper.searchResultToPreview(doc)
             }
             .filter { !it.poster.isNullOrBlank() }
+            .shuffled()
             .also { trendingAnimeCache = it }
     }
 
-    override suspend fun getTrendingCartoons(): List<MediaPreview> = runCatchingAppError {
+    override suspend fun getTrendingCartoons(page: Int): List<MediaPreview> = runCatchingAppError {
         trendingCartoonsCache?.let {
             return@runCatchingAppError it }
 
-        kpApi.getTrendingCartoons()
+        kpApi.getTrendingCartoons(page = page)
             .docs.map { doc ->
                 mapper.searchResultToPreview(doc)
             }
             .filter { !it.poster.isNullOrBlank() }
+            .shuffled()
             .also { trendingCartoonsCache = it }
     }
 
-    override suspend fun getTrendingAnimatedSeries(): List<MediaPreview> = runCatchingAppError {
+    override suspend fun getTrendingAnimatedSeries(page: Int): List<MediaPreview> = runCatchingAppError {
         trendingAnimatedSeriesCache?.let {
             return@runCatchingAppError it }
 
-        kpApi.getTrendingAnimatedSeries()
+        kpApi.getTrendingAnimatedSeries(page = page)
             .docs.map { doc ->
                 mapper.searchResultToPreview(doc)
             }
             .filter { !it.poster.isNullOrBlank() }
+            .shuffled()
             .also { trendingAnimatedSeriesCache = it }
     }
 

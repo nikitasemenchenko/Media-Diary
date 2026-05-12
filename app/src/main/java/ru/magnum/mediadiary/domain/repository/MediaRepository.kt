@@ -16,15 +16,15 @@ interface MediaRepository {
 
     suspend fun addToWishList(id: Int): AddToCollectionResult
 
-    suspend fun getTrendingMovies(): List<MediaPreview>
+    suspend fun getTrendingMovies(page: Int = 1): List<MediaPreview>
 
-    suspend fun getTrendingSeries(): List<MediaPreview>
+    suspend fun getTrendingSeries(page: Int = 1): List<MediaPreview>
 
-    suspend fun getTrendingAnime(): List<MediaPreview>
+    suspend fun getTrendingAnime(page: Int = 1): List<MediaPreview>
 
-    suspend fun getTrendingCartoons(): List<MediaPreview>
+    suspend fun getTrendingCartoons(page: Int = 1): List<MediaPreview>
 
-    suspend fun getTrendingAnimatedSeries(): List<MediaPreview>
+    suspend fun getTrendingAnimatedSeries(page: Int = 1): List<MediaPreview>
 
     fun getCollectionByStatus(status: WatchStatus): Flow<List<MediaDetails>>
 

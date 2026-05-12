@@ -25,6 +25,7 @@ import ru.magnum.mediadiary.domain.repository.MediaRepository
 import ru.magnum.mediadiary.presentation.mappers.toMessageRes
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.random.Random
 
 @HiltViewModel
 @OptIn(FlowPreview::class)
@@ -103,12 +104,17 @@ class SearchViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             runCatching {
+                val moviesPage = Random.nextInt(from = 1, until = 11)
+                val seriesPage = Random.nextInt(from = 1, until = 11)
+                val animePage = Random.nextInt(from = 1, until = 11)
+                val cartoonPage = Random.nextInt(from = 1, until = 11)
+                val animatedSeriesPage = Random.nextInt(from = 1, until = 11)
                 supervisorScope {
-                    val movies = async { repository.getTrendingMovies() }
-                    val series = async { repository.getTrendingSeries() }
-                    val anime = async { repository.getTrendingAnime() }
-                    val cartoons = async { repository.getTrendingCartoons() }
-                    val animatedSeries = async { repository.getTrendingAnimatedSeries() }
+                    val movies = async { repository.getTrendingMovies(moviesPage) }
+                    val series = async { repository.getTrendingSeries(seriesPage) }
+                    val anime = async { repository.getTrendingAnime(animePage) }
+                    val cartoons = async { repository.getTrendingCartoons(cartoonPage) }
+                    val animatedSeries = async { repository.getTrendingAnimatedSeries(animatedSeriesPage) }
 
                     val results = awaitAll(movies, series, anime, cartoons, animatedSeries)
                     _uiState.update {

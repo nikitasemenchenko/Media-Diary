@@ -1,7 +1,7 @@
 import kotlin.math.round
 
 object AppConstants {
-    const val BASE_URL = "https://api.kinopoisk.dev/v1.4/"
+    const val BASE_URL = "https://api.poiskkino.dev/v1.4/"
     const val DB_NAME = "mediadiary_database"
     const val TIMEOUT_MILLIS = 5_000L
     const val SEARCH_DELAY = 600L
