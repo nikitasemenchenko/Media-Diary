@@ -4,11 +4,13 @@ import kotlinx.serialization.SerializationException
 import retrofit2.HttpException
 import ru.magnum.mediadiary.domain.model.AppError
 import java.io.IOException
+import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 class ErrorMapper @Inject constructor() {
     fun map(e: Throwable): AppError {
         return when(e) {
+            is SocketTimeoutException -> AppError.Timeout
             is IOException -> AppError.Network
             is SerializationException -> AppError.Parsing
             is HttpException -> {

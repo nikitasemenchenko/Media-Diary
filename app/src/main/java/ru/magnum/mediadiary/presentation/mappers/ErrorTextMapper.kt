@@ -7,6 +7,7 @@ import ru.magnum.mediadiary.domain.model.AppError
 @StringRes
 fun AppError.messageRes(): Int {
     return when (this) {
+        AppError.Timeout -> R.string.error_timeout
         AppError.Network -> R.string.error_internet
         AppError.Server -> R.string.error_server
         AppError.NotFound -> R.string.error_not_found

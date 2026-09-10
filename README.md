@@ -19,7 +19,11 @@
 
 ## Installation
 
-[👉 **Download the APK**](https://drive.google.com/file/d/1P13PmCJk6VxPbU4e66fVoSmHBrNahGjp/view?usp=sharing)  
+[👉 **Download the APK**](https://drive.google.com/file/d/1TL3mXeMe-f1AyS--_QhwpnRcWL45quQF/view?usp=sharing)  
+
+**Or:**
+
+[👉 **Download from RuStore**](https://www.rustore.ru/catalog/app/ru.magnum.mediadiary)
 
 **Or:**
 

@@ -70,7 +70,7 @@
     <string name="error_server">Сервис временно недоступен, повторите попытку позже. </string>
     <string name="error_unknown">Произошла неизвестная ошибка, повторите попытку позже.</string>
     <string name="error_unauthorized">Ошибка доступа к сервису. Проверьте API-ключ или повторите попытку позже.</string>
-
+    <string name="error_timeout">Сервер отвечает слишком долго. Попробуйте ещё раз.</string>
 
     <string name="unknown_title">Без названия</string>
     <string name="unknown_year">Неизвестно</string>
